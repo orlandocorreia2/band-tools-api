@@ -1,0 +1,40 @@
+# dependencies
+node_modules
+
+# build output
+dist
+
+# test artifacts
+coverage
+
+# environment files
+.env
+.env.*
+!.env.example
+
+# git
+.git
+.gitignore
+
+# editor
+.vscode
+.idea
+*.swp
+
+# logs
+*.log
+logs
+
+# OS
+.DS_Store
+Thumbs.db
+
+# documentation
+README.md
+CHANGELOG.md
+
+# test files
+test
+**/*.spec.ts
+**/*.e2e-spec.ts
+jest.config.ts

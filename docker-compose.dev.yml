@@ -1,0 +1,52 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: band-tools-api-dev
+    ports:
+      - '${PORT:-3000}:3000'
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=postgres
+    volumes:
+      - ./:/app:rw
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - band-tools-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: band-tools-postgres
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    environment:
+      POSTGRES_USER: ${DB_USER:-band_tools}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-band_tools}
+      POSTGRES_DB: ${DB_NAME:-band_tools_db}
+    volumes:
+      - band_tools_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${DB_USER:-band_tools} -d ${DB_NAME:-band_tools_db}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - band-tools-network
+
+volumes:
+  band_tools_postgres_data:
+
+networks:
+  band-tools-network:
+    driver: bridge
