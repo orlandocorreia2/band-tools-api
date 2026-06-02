@@ -1,90 +1,124 @@
 # Band Tools API
 
-Aplicação backend voltada para o gerenciamento de bandas musicais. Permite cadastrar e administrar bandas, membros, músicas, ensaios, eventos e demais recursos relacionados ao universo de bandas.
+Backend application for managing musical bands. Allows registering and administering bands, members, songs, rehearsals, events, and other resources related to the band universe.
 
 ## Tech Stack
 
-- Runtime: Node.js com TypeScript
-- Framework: NestJS (com Fastify como plataforma HTTP)
-- ORM: TypeORM
-- Banco de dados: PostgreSQL
-- Documentação de API: Swagger / OpenAPI (`@nestjs/swagger` + `@scalar/nestjs-api-reference`)
-- Validação: `class-validator` + `class-transformer`
-- Testes: Jest (unitário + e2e com Supertest)
-- Linting/Formatação: ESLint + Prettier
-- Git hooks: Husky + Commitlint
+- **Runtime:** Node.js with TypeScript
+- **Framework:** NestJS (Fastify as HTTP platform)
+- **ORM:** TypeORM
+- **Database:** PostgreSQL
+- **API Documentation:** Swagger / OpenAPI (`@nestjs/swagger` + `@scalar/nestjs-api-reference`)
+- **Validation:** `class-validator` + `class-transformer`
+- **Tests:** Jest (unit + e2e with Supertest)
+- **Linting / Formatting:** ESLint + Prettier
+- **Git hooks:** Husky + Commitlint
 
-## Arquitetura
+## Architecture
 
-O projeto segue uma arquitetura em camadas inspirada em Clean Architecture / Domain-Driven Design:
+The project follows a layered architecture inspired by Clean Architecture / Domain-Driven Design:
 
-- `src/domain/` — Entidades e regras de negócio puras, sem dependência de frameworks
-- `src/application/` — Casos de uso (use cases) que orquestram a lógica de negócio
-- `src/infrastructure/` — Implementações concretas: banco de dados, migrations, repositórios TypeORM
-- `src/http/` — Controllers, middlewares e camada de entrada HTTP (NestJS)
-- `src/shared/` — Utilitários compartilhados: DTOs de comunicação, exceções, helpers, enums, interfaces
+```
+src/
+├── domain/           # Pure business entities and rules — no framework dependency
+├── application/      # Use cases that orchestrate business logic
+├── infrastructure/   # Concrete implementations: TypeORM entities, repositories, migrations
+│   ├── entities/     # TypeORM entities (suffixed BandTypeormEntity to avoid name clash)
+│   ├── repository/   # IBandRepository implementations
+│   └── typeorm/      # DataSource, TypeormModule, migrations
+├── http/             # Controllers, middlewares, NestJS HTTP layer
+│   ├── band/         # BandController + BandFactoryModule
+│   ├── health-check/ # HealthCheckController + HealthCheckFactoryModule
+│   └── middlewares/  # ExceptionFilterMiddleware, TrimStringsMiddleware
+└── shared/           # Cross-cutting: DTOs, enums, exceptions, helpers, config
+    ├── commons/      # Enums (BandGenreEnum, BandStatusEnum), OpenAPI helpers
+    ├── communication/dtos/  # Request/response DTOs with class-validator decorators
+    ├── config/       # EnvConfigModule, EnvConfigService, env validation
+    ├── exceptions/   # BaseException, BusinessException
+    └── helpers/      # Error messages map
+```
 
-## Padrões de Projeto
+## Design Patterns
 
 ### SOLID
-Todos os princípios são aplicados:
-- **S** — Responsabilidade única por classe
-- **O** — Aberto para extensão, fechado para modificação
-- **L** — Substituição de Liskov
-- **I** — Segregação de interfaces
-- **D** — Inversão de dependência
+All principles are applied:
+- **S** — Single responsibility per class
+- **O** — Open for extension, closed for modification
+- **L** — Liskov substitution
+- **I** — Interface segregation
+- **D** — Dependency inversion
 
 ### Repository Pattern
-Acesso a dados abstraído por interfaces de repositório definidas no domínio e implementadas na camada de infraestrutura. Casos de uso dependem apenas da interface, nunca do TypeORM diretamente.
+Data access is abstracted by repository interfaces defined in the domain layer (`src/domain/repositories/`) and implemented in the infrastructure layer (`src/infrastructure/repository/`). Use cases depend only on the interface, never on TypeORM directly.
 
 ### Object Calisthenics
-Regras de qualidade de código aplicadas:
-- Um nível de indentação por método
-- Sem uso de `else`
-- Wrapping de primitivos em tipos de domínio (value objects)
-- Coleções encapsuladas em classes próprias
-- Limite de dois atributos por classe onde possível
-- Sem abreviações em nomes
+- One level of indentation per method
+- No `else` usage
+- Primitive wrapping in domain types (value objects)
+- Collections encapsulated in their own classes
+- Max two attributes per class where possible
+- No abbreviations in names
 
 ### Migrations
-Toda alteração de schema do banco de dados é feita exclusivamente via migrations TypeORM versionadas em `src/infrastructure/database/migrations/`.
+All schema changes are made exclusively via versioned TypeORM migrations in `src/infrastructure/typeorm/migrations/`.
 
-- Nunca usar `synchronize: true` em produção
-- Gerar: `npm run migration:generate -- --name=<nome>`
-- Executar: `npm run migration:run`
-- Reverter: `npm run migration:revert`
+- Never use `synchronize: true` in production
+- Generate: `npm run migration:generate -- --name=<name>`
+- Run: `npm run migration:run`
+- Revert: `npm run migration:revert`
 
-## Fluxo de Desenvolvimento
+## Development Workflow
 
-O projeto adota **SDD (Specification-Driven Development)** combinado com **TDD (Test-Driven Development)**:
+The project adopts **SDD (Specification-Driven Development)** combined with **TDD (Test-Driven Development)**:
 
-1. **Spec first** — toda mudança começa com proposta e design documentados via OpenSpec (`/opsx:propose`) antes de qualquer linha de código
-2. **Red** — escrever o teste que valida o comportamento esperado (falha inicialmente)
-3. **Green** — implementar o mínimo necessário para o teste passar
-4. **Refactor** — melhorar o código mantendo os testes verdes e respeitando SOLID + Object Calisthenics
-5. **Commit** — seguindo Conventional Commits apenas após todos os testes passarem
+1. **Spec first** — every change starts with a proposal and design documented via OpenSpec (`/opsx:propose`) before any code is written
+2. **Red** — write the test that validates the expected behavior (initially fails)
+3. **Green** — implement the minimum necessary to make the test pass
+4. **Refactor** — improve the code keeping tests green and respecting SOLID + Object Calisthenics
+5. **Commit** — following Conventional Commits only after all tests pass
 
-## Padrões e Convenções
+## Conventions
 
-- Commits seguem o padrão **Conventional Commits** (commitlint + Husky)
-- Módulos NestJS organizados por domínio/funcionalidade
-- DTOs com validação explícita via `class-validator`
-- Variáveis de ambiente gerenciadas com `dotenv` + `@nestjs/config`
-- Docker Compose para ambiente de desenvolvimento local (`docker-compose.dev.yml`)
+### Commits
+Follow **Conventional Commits** (commitlint + Husky).
 
-## Comandos Úteis
+### Enums
+Enum values use **PascalCase with spaces** (e.g. `'Rock'`, `'Alternative Rock'`, `'Hip Hop'`, `'Active'`, `'Inactive'`). Exception: well-known acronyms keep their canonical form (`'MPB'`, `'R And B'`).
+
+### HTTP Error Codes
+- **400** — malformed request body (Fastify native)
+- **422** — DTO validation failure (class-validator via `ValidationPipe` `exceptionFactory`)
+- **500** — unhandled internal errors
+
+All errors flow through `ExceptionFilterMiddleware` (global `@Catch()` filter) and return the shape `{ error, message, errors[] }`.
+
+### Module Organization
+- NestJS modules organized by domain/feature
+- Factory modules (`*FactoryModule`) centralize all provider wiring using `useFactory`; controllers inject use case interfaces via token — never the concrete class
+- DTOs use explicit `class-validator` decorators; `ValidationPipe` is configured with `transform: true` and `whitelist: true`
+
+### Environment Variables
+Managed with `dotenv` + `@nestjs/config`. All variables are validated at startup via `env-config.validation.ts` (`class-validator` + `plainToInstance`). Docker Compose is used for the local development environment (`docker-compose.dev.yml`).
+
+### Testing
+- **Unit tests:** `test/unit/` — 100% coverage required (statements, branches, functions, lines)
+- **e2e tests:** `test/` (`*.e2e-spec.ts`) — uses Supertest against a real NestJS app
+- Jest config: `jest.config.ts` (unit), `test/jest-e2e.json` (e2e)
+- `emitDecoratorMetadata: false` in the Jest tsconfig — barrel files that only re-export types need a side-effect import (`import '@module/interfaces'`) in a dedicated spec to be counted in coverage
+
+## Useful Commands
 
 ```bash
-# Desenvolvimento
+# Development
 npm run start:dev
 
-# Testes
-npm run test
-npm run test:e2e
-npm run test:cov
+# Tests
+npm run test           # unit tests
+npm run test:e2e       # e2e tests
+npm run test:cov       # unit tests with coverage
 
 # Migrations
-npm run migration:generate -- --name=<nome>
+npm run migration:generate -- --name=<name>
 npm run migration:run
 npm run migration:revert
 
