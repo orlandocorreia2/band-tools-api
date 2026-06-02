@@ -4,6 +4,7 @@ const mockUseFn = jest.fn();
 const mockGetFn = jest.fn();
 const mockEnableCors = jest.fn();
 const mockUseGlobalFilters = jest.fn();
+const mockUseGlobalPipes = jest.fn();
 const mockBuildDocFn = jest.fn();
 const mockApiMiddleware = jest.fn();
 const mockApiReferenceFn = jest.fn();
@@ -15,14 +16,18 @@ const mockApp = {
   listen: mockListenFn,
   enableCors: mockEnableCors,
   useGlobalFilters: mockUseGlobalFilters,
+  useGlobalPipes: mockUseGlobalPipes,
 };
 
 const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
+
+let capturedPipeOptions: { exceptionFactory?: (errors: any[]) => any } = {};
 
 describe('main', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
+    capturedPipeOptions = {};
 
     mockNestFactoryCreate.mockResolvedValue(mockApp);
     mockListenFn.mockResolvedValue(undefined);
@@ -32,6 +37,13 @@ describe('main', () => {
 
     jest.doMock('@nestjs/core', () => ({
       NestFactory: { create: mockNestFactoryCreate },
+    }));
+    jest.doMock('@nestjs/common', () => ({
+      HttpStatus: { UNPROCESSABLE_ENTITY: 422 },
+      ValidationPipe: jest.fn().mockImplementation((options) => {
+        capturedPipeOptions = options;
+        return {};
+      }),
     }));
     jest.doMock('@nestjs/platform-fastify', () => ({
       FastifyAdapter: jest.fn().mockImplementation(() => ({})),
@@ -50,6 +62,12 @@ describe('main', () => {
     }));
     jest.doMock('@http/middlewares/exception-filter.middleware', () => ({
       ExceptionFilterMiddleware: jest.fn().mockImplementation(() => ({})),
+    }));
+    jest.doMock('@shared/commons/enums/exception.enum', () => ({
+      ExceptionTypeEnum: { ClassValidator: 'Validation errors' },
+    }));
+    jest.doMock('@shared/exceptions/base.exception', () => ({
+      BaseException: jest.fn().mockImplementation((opts) => opts),
     }));
     jest.doMock('../../src/app.module', () => ({
       AppModule: class AppModule {},
@@ -152,5 +170,64 @@ describe('main', () => {
     await flush();
 
     expect(mockUseGlobalFilters).toHaveBeenCalledWith(expect.any(Object));
+  });
+
+  it('should register ValidationPipe as global pipe', async () => {
+    require('../../src/main');
+    await flush();
+
+    expect(mockUseGlobalPipes).toHaveBeenCalledWith(expect.any(Object));
+  });
+
+  describe('ValidationPipe exceptionFactory', () => {
+    it('should map validation errors to BaseException with correct shape', async () => {
+      require('../../src/main');
+      await flush();
+
+      const MockBaseException =
+        jest.requireMock('@shared/exceptions/base.exception').BaseException;
+
+      const validationErrors = [
+        {
+          property: 'name',
+          constraints: {
+            isString: 'name must be a string',
+            minLength: 'name must be at least 3 characters',
+          },
+        },
+      ];
+
+      capturedPipeOptions.exceptionFactory(validationErrors);
+
+      expect(MockBaseException).toHaveBeenCalledWith({
+        code: 422,
+        title: 'Validation errors',
+        detail: 'Validation failed',
+        errors: [
+          {
+            field: 'name',
+            detail: 'name must be a string, name must be at least 3 characters',
+          },
+        ],
+      });
+    });
+
+    it('should use empty string for detail when constraints are undefined', async () => {
+      require('../../src/main');
+      await flush();
+
+      const MockBaseException =
+        jest.requireMock('@shared/exceptions/base.exception').BaseException;
+
+      const validationErrors = [{ property: 'genre', constraints: undefined }];
+
+      capturedPipeOptions.exceptionFactory(validationErrors);
+
+      expect(MockBaseException).toHaveBeenCalledWith(
+        expect.objectContaining({
+          errors: [{ field: 'genre', detail: '' }],
+        }),
+      );
+    });
   });
 });

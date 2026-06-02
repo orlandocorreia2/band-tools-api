@@ -1,13 +1,13 @@
 ## 1. Domain
 
-- [ ] 1.1 Create `BandGenreEnum` and `BandStatusEnum` enums at `src/shared/commons/enums/band.enum.ts`; `BandStatusEnum` values: `active`, `inactive`; `BandGenreEnum` values: `rock`, `alternative_rock`, `indie_rock`, `hard_rock`, `progressive_rock`, `psychedelic_rock`, `blues_rock`, `post_rock`, `grunge`, `punk`, `new_wave`, `metal`, `heavy_metal`, `doom_metal`, `gothic_metal`, `thrash_metal`, `death_metal`, `black_metal`, `pop`, `jazz`, `blues`, `classical`, `electronic`, `techno`, `house`, `ambient`, `hip_hop`, `r_and_b`, `funk`, `soul`, `disco`, `reggae`, `ska`, `country`, `folk`, `gospel`, `latin`, `samba`, `forro`, `bossa_nova`, `mpb`, `axe`, `pagode`, `trap`, `other`
-- [ ] 1.2 Create abstract `BaseEntity` at `src/domain/entities/base.entity.ts` with `id`, `created_at`, and `updated_at` fields; all set in the constructor — `id` generated as UUIDv7, `created_at` and `updated_at` set to `new Date()`
-- [ ] 1.3 Create `BandEntity` at `src/domain/entities/band/band.entity.ts` extending `BaseEntity`; constructor receives a typed props object with all required fields (`name`, `genre`, `country`, `state`, `city`, `neighborhood`, `address`, `started_at`, `status`) and optional fields (`description`, `image`) and assigns each to its property; `id`, `created_at`, and `updated_at` are set by calling `super()`
-- [ ] 1.4 Create `IBandRepository` interface at `src/domain/repositories/band/band.repository.interface.ts` with method signature `save(band: BandEntity): Promise<void>`
+- [x] 1.1 Create `BandGenreEnum` and `BandStatusEnum` enums at `src/shared/commons/enums/band.enum.ts`; `BandStatusEnum` values: `active`, `inactive`; `BandGenreEnum` values: `rock`, `alternative_rock`, `indie_rock`, `hard_rock`, `progressive_rock`, `psychedelic_rock`, `blues_rock`, `post_rock`, `grunge`, `punk`, `new_wave`, `metal`, `heavy_metal`, `doom_metal`, `gothic_metal`, `thrash_metal`, `death_metal`, `black_metal`, `pop`, `jazz`, `blues`, `classical`, `electronic`, `techno`, `house`, `ambient`, `hip_hop`, `r_and_b`, `funk`, `soul`, `disco`, `reggae`, `ska`, `country`, `folk`, `gospel`, `latin`, `samba`, `forro`, `bossa_nova`, `mpb`, `axe`, `pagode`, `trap`, `other`
+- [x] 1.2 Create abstract `BaseEntity` at `src/domain/entities/base.entity.ts` with `id`, `created_at`, and `updated_at` fields; all set in the constructor — `id` generated as UUIDv7, `created_at` and `updated_at` set to `new Date()`
+- [x] 1.3 Create `BandEntity` at `src/domain/entities/band/band.entity.ts` extending `BaseEntity`; constructor receives a typed props object with all required fields (`name`, `genre`, `country`, `state`, `city`, `neighborhood`, `address`, `started_at`, `status`) and optional fields (`description`, `image`) and assigns each to its property; `id`, `created_at`, and `updated_at` are set by calling `super()`
+- [x] 1.4 Create `IBandRepository` interface at `src/domain/repositories/band/band.repository.interface.ts` with method signature `save(band: BandEntity): Promise<void>`
 
 ## 2. DTOs
 
-- [ ] 2.1 Create `CreateBandDto` at `src/shared/communication/dtos/band/create-band.dto.ts` with the following fields and decorators:
+- [x] 2.1 Create `CreateBandDto` at `src/shared/communication/dtos/band/create-band.dto.ts` with the following fields and decorators:
   - `name`: `@IsString() @MinLength(3)` — required
   - `genre`: `@IsEnum(BandGenreEnum)` — required
   - `country`: `@IsString() @MinLength(1)` — required
@@ -23,22 +23,22 @@
 
 ## 3. Use Case
 
-- [ ] 3.1 Create `CreateBandUseCaseInterface` at `src/application/usecase/band/interfaces/create-band.usecase.interface.ts` with method signature `execute(dto: CreateBandDto): Promise<void>`
-- [ ] 3.2 Create `CreateBandUseCase` at `src/application/usecase/band/create-band.usecase.ts` implementing `CreateBandUseCaseInterface`; constructor receives `IBandRepository` via dependency injection; main method named `execute`
+- [x] 3.1 Create `CreateBandUseCaseInterface` at `src/application/usecase/band/interfaces/create-band.usecase.interface.ts` with method signature `execute(dto: CreateBandDto): Promise<void>`
+- [x] 3.2 Create `CreateBandUseCase` at `src/application/usecase/band/create-band.usecase.ts` implementing `CreateBandUseCaseInterface`; constructor receives `IBandRepository` via dependency injection; main method named `execute`
 
 ## 4. Infrastructure
 
-- [ ] 4.1 Create `BandTypeormEntity` at `src/infrastructure/database/entities/band/band-typeorm.entity.ts` mapping all fields to the database (named `BandTypeormEntity` to avoid conflict with the domain `BandEntity`)
-- [ ] 4.2 Create `BandRepository` at `src/infrastructure/database/repositories/band/band.repository.ts` implementing `IBandRepository`
-- [ ] 4.3 Generate migration with `npm run migration:generate -- --name=create-bands-table`; ensure `status` column has `DEFAULT 'active'` and `genre` column has `DEFAULT 'rock'` in the generated SQL
-- [ ] 4.4 Run the migration with `npm run migration:run` and validate the table in the database
+- [x] 4.1 Create `BandTypeormEntity` at `src/infrastructure/database/entities/band/band-typeorm.entity.ts` mapping all fields to the database (named `BandTypeormEntity` to avoid conflict with the domain `BandEntity`)
+- [x] 4.2 Create `BandRepository` at `src/infrastructure/database/repositories/band/band.repository.ts` implementing `IBandRepository`
+- [x] 4.3 Generate migration with `npm run migration:generate -- --name=create-bands-table`; ensure `status` column has `DEFAULT 'active'` and `genre` column has `DEFAULT 'rock'` in the generated SQL
+- [x] 4.4 Run the migration with `npm run migration:run` and validate the table in the database
 
 ## 5. HTTP Layer
 
-- [ ] 5.1 Create `BandController` at `src/http/band/band.controller.ts` with endpoint `POST /bands` decorated with `@HttpCode(HttpStatus.CREATED)`; inject the use case via `@Inject(BandFactoryModule.CREATE_BAND_USE_CASE)` typed as `CreateBandUseCaseInterface`
-- [ ] 5.2 Create `BandFactoryModule` at `src/http/band/band-factory.module.ts` following the `HealthCheckFactoryModule` pattern; `useFactory` receives `BandRepository` via `inject` and passes it as constructor argument to `new CreateBandUseCase(bandRepository)`
-- [ ] 5.3 Import `BandFactoryModule.forRoot()` in `AppModule`
-- [ ] 5.4 Add Swagger decorators to the controller:
+- [x] 5.1 Create `BandController` at `src/http/band/band.controller.ts` with endpoint `POST /bands` decorated with `@HttpCode(HttpStatus.CREATED)`; inject the use case via `@Inject(BandFactoryModule.CREATE_BAND_USE_CASE)` typed as `CreateBandUseCaseInterface`
+- [x] 5.2 Create `BandFactoryModule` at `src/http/band/band-factory.module.ts` following the `HealthCheckFactoryModule` pattern; `useFactory` receives `BandRepository` via `inject` and passes it as constructor argument to `new CreateBandUseCase(bandRepository)`
+- [x] 5.3 Import `BandFactoryModule.forRoot()` in `AppModule`
+- [x] 5.4 Add Swagger decorators to the controller:
   - `@ApiTags('bands')`
   - `@ApiOperation({ summary: 'Register a new band' })`
   - `@ApiResponse({ status: 201, description: 'Band created successfully' })`
@@ -47,14 +47,14 @@
 
 ## 6. Unit Tests
 
-- [ ] 6.1 Write unit tests for `BaseEntity` — assert `created_at` and `updated_at` are set to the current date on instantiation
-- [ ] 6.2 Write unit tests for `BandEntity` — assert all fields are correctly assigned via constructor, `id` is generated as UUIDv7, and `created_at`/`updated_at` are inherited from `BaseEntity`
-- [ ] 6.3 Write unit tests for `CreateBandUseCase` — mock `IBandRepository`, assert `save` is called with a `BandEntity` instance and `execute` returns `void`
-- [ ] 6.4 Write unit tests for `BandRepository` — mock TypeORM `DataSource`/`Repository`, assert `save` persists the entity and maps correctly to domain
-- [ ] 6.5 Write unit tests for `BandController` — mock `CreateBandUseCaseInterface`, assert `POST /bands` calls `execute` and returns HTTP 201 with no body
-- [ ] 6.6 Write unit tests for `CreateBandDto` — use `class-validator` `validate()` to assert each required field fails when absent and each validation rule is enforced (min length, enum values, date)
-- [ ] 6.7 Verify 100% coverage for all files above with `npm run test:cov`
+- [x] 6.1 Write unit tests for `BaseEntity` — assert `created_at` and `updated_at` are set to the current date on instantiation
+- [x] 6.2 Write unit tests for `BandEntity` — assert all fields are correctly assigned via constructor, `id` is generated as UUIDv7, and `created_at`/`updated_at` are inherited from `BaseEntity`
+- [x] 6.3 Write unit tests for `CreateBandUseCase` — mock `IBandRepository`, assert `save` is called with a `BandEntity` instance and `execute` returns `void`
+- [x] 6.4 Write unit tests for `BandRepository` — mock TypeORM `DataSource`/`Repository`, assert `save` persists the entity and maps correctly to domain
+- [x] 6.5 Write unit tests for `BandController` — mock `CreateBandUseCaseInterface`, assert `POST /bands` calls `execute` and returns HTTP 201 with no body
+- [x] 6.6 Write unit tests for `CreateBandDto` — use `class-validator` `validate()` to assert each required field fails when absent and each validation rule is enforced (min length, enum values, date)
+- [x] 6.7 Verify 100% coverage for all files above with `npm run test:cov`
 
 ## 7. E2E Tests
 
-- [ ] 7.1 Write e2e tests for `POST /bands` (scenarios: success, missing required field, invalid status)
+- [x] 7.1 Write e2e tests for `POST /bands` (scenarios: success, missing required field, invalid status)

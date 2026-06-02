@@ -24,22 +24,26 @@ All validations SHALL be enforced via `class-validator` decorators on the DTO an
 - **WHEN** a `POST /bands` request is sent with all required fields passing their validations
 - **THEN** the system SHALL persist the band with a generated `id` (UUIDv7), `created_at` and `updated_at` filled automatically, and return HTTP status 201 with no body
 
+#### Scenario: Registration with malformed request body
+- **WHEN** a `POST /bands` request is sent with an unparseable body (e.g. invalid JSON)
+- **THEN** the system SHALL return HTTP status 400
+
 #### Scenario: Registration without a required field
 - **WHEN** a `POST /bands` request is sent with any required field missing
-- **THEN** the system SHALL return HTTP status 400 with an error message identifying the missing field
+- **THEN** the system SHALL return HTTP status 422 with an error message identifying the missing field
 
 #### Scenario: Registration with name shorter than 3 characters
 - **WHEN** a `POST /bands` request is sent with `name` containing fewer than 3 characters
-- **THEN** the system SHALL return HTTP status 400 with a validation error message
+- **THEN** the system SHALL return HTTP status 422 with a validation error message
 
 #### Scenario: Registration with invalid genre
 - **WHEN** a `POST /bands` request is sent with a `genre` value outside the allowed `BandGenreEnum` values
-- **THEN** the system SHALL return HTTP status 400 with a validation error message
+- **THEN** the system SHALL return HTTP status 422 with a validation error message
 
 #### Scenario: Registration with invalid status
 - **WHEN** a `POST /bands` request is sent with a `status` outside the allowed `BandStatusEnum` values
-- **THEN** the system SHALL return HTTP status 400 with a validation error message
+- **THEN** the system SHALL return HTTP status 422 with a validation error message
 
 #### Scenario: Registration with invalid started_at
 - **WHEN** a `POST /bands` request is sent with `started_at` that is not a valid date
-- **THEN** the system SHALL return HTTP status 400 with a validation error message
+- **THEN** the system SHALL return HTTP status 422 with a validation error message

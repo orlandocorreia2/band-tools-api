@@ -22,4 +22,4 @@ import { EnvConfigService } from '@shared/config/env-config.service';
     }),
   ],
 })
-export class DatabaseModule {}
+export class TypeormModule {}

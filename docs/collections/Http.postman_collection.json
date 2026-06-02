@@ -27,6 +27,43 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Band",
+      "item": [
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Electric Grave\",\r\n  \"genre\": \"Heavy Metal\",\r\n  \"country\": \"Brazil\",\r\n  \"state\": \"São Paulo\",\r\n  \"city\": \"São Paulo\",\r\n  \"neighborhood\": \"Jardim Ibirapuera\",\r\n  \"address\": \"Rua Solar dos Quevedos, 06\",\r\n  \"started_at\": \"2017-01-01\",\r\n  \"description\": \"A legendary heavy metal band.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bands",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bands"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

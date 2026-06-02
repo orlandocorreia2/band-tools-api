@@ -38,13 +38,13 @@ The Band Tools API does not yet have a Band entity. This is the first domain mod
 
 **Decision:** `genre` represented by a TypeScript enum (`BandGenreEnum`) defined in `src/shared/commons/enums/band.enum.ts` with well-known genres. Stored as plain `varchar` in the database.
 
-`rock`, `alternative_rock`, `indie_rock`, `hard_rock`, `progressive_rock`, `psychedelic_rock`, `blues_rock`, `post_rock`, `grunge`, `punk`, `new_wave`, `metal`, `heavy_metal`, `doom_metal`, `gothic_metal`, `thrash_metal`, `death_metal`, `black_metal`, `pop`, `jazz`, `blues`, `classical`, `electronic`, `techno`, `house`, `ambient`, `hip_hop`, `r_and_b`, `funk`, `soul`, `disco`, `reggae`, `ska`, `country`, `folk`, `gospel`, `latin`, `samba`, `forro`, `bossa_nova`, `mpb`, `axe`, `pagode`, `trap`, `other`.  
+`Rock`, `Alternative Rock`, `Indie Rock`, `Hard Rock`, `Progressive Rock`, `Psychedelic Rock`, `Blues Rock`, `Post Rock`, `Grunge`, `Punk`, `New Wave`, `Metal`, `Heavy Metal`, `Doom Metal`, `Gothic Metal`, `Thrash Metal`, `Death Metal`, `Black Metal`, `Pop`, `Jazz`, `Blues`, `Classical`, `Electronic`, `Techno`, `House`, `Ambient`, `Hip Hop`, `R And B`, `Funk`, `Soul`, `Disco`, `Reggae`, `Ska`, `Country`, `Folk`, `Gospel`, `Latin`, `Samba`, `Forro`, `Bossa Nova`, `MPB`, `Axe`, `Pagode`, `Trap`, `Other`.  
 **Reason:** Constrains input to a known set at the application level without locking the database schema to a fixed type. `other` covers edge cases without requiring schema changes.  
 **Alternative considered:** Free-form string — rejected for allowing inconsistent and misspelled values.
 
 ### 4. `BandStatusEnum` enum in shared layer, stored as plain string in the database
 
-**Decision:** `status` represented by a TypeScript enum (`active | inactive`) defined in `src/shared/commons/enums/band.enum.ts`. In the database, the column is mapped as a plain `varchar` — no PostgreSQL enum type.  
+**Decision:** `status` represented by a TypeScript enum (`Active | Inactive`) defined in `src/shared/commons/enums/band.enum.ts`. In the database, the column is mapped as a plain `varchar` — no PostgreSQL enum type.  
 **Reason:** Storing as a plain string avoids `ALTER TYPE` migrations whenever new statuses are added. The TypeScript enum still enforces valid values at the application level via `class-validator`.  
 **Alternative considered:** PostgreSQL native enum — rejected because adding new values requires a database migration even when the change is trivial at the application level.
 

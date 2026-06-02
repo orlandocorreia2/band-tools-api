@@ -1,5 +1,6 @@
 import {
   ArgumentsHost,
+  Catch,
   ExceptionFilter,
   HttpStatus,
   Injectable,
@@ -8,6 +9,7 @@ import { ExceptionTypeEnum } from '@shared/commons/enums/exception.enum';
 import { ProblemsDetailInterface } from '@shared/exceptions/interfaces';
 import { errors as helperErrors } from '@shared/helpers';
 
+@Catch()
 @Injectable()
 export class ExceptionFilterMiddleware implements ExceptionFilter {
   catch(exception: ProblemsDetailInterface, host: ArgumentsHost) {

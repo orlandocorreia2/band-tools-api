@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { TypeormModule } from './typeorm/typeorm.module';
 
 @Module({
-  imports: [],
+  imports: [TypeormModule],
   providers: [],
-  exports: [],
+  exports: [TypeormModule],
 })
 export class InfrastructureModule {
   onModuleInit() {
