@@ -1,12 +1,10 @@
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CreateBandDto } from '@shared/communication/dtos/band/create-band.dto';
-import { BandGenreEnum } from '@shared/commons/enums/band.enum';
 
 const makeValidPlain = () => ({
   name: 'The Beatles',
-  genre: BandGenreEnum.Rock,
-  country: 'UK',
+  genre: 'Rock',
   state: 'England',
   city: 'Liverpool',
   neighborhood: 'Woolton',
@@ -37,19 +35,6 @@ describe('CreateBandDto', () => {
     const { genre, ...rest } = makeValidPlain();
     const errors = await validate(toDto(rest));
     expect(errors.some((e) => e.property === 'genre')).toBe(true);
-  });
-
-  it('should fail when genre is invalid enum value', async () => {
-    const errors = await validate(
-      toDto({ ...makeValidPlain(), genre: 'invalid_genre' }),
-    );
-    expect(errors.some((e) => e.property === 'genre')).toBe(true);
-  });
-
-  it('should fail when country is missing', async () => {
-    const { country, ...rest } = makeValidPlain();
-    const errors = await validate(toDto(rest));
-    expect(errors.some((e) => e.property === 'country')).toBe(true);
   });
 
   it('should fail when started_at is not a valid date', async () => {

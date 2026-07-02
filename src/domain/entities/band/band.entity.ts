@@ -1,11 +1,10 @@
-import { BandGenreEnum, BandStatusEnum } from '@shared/commons/enums/band.enum';
+import { BandStatusEnum } from '@shared/commons/enums/band.enum';
 import { BaseEntity } from '@domain/entities/base.entity';
 
 type BandProps = {
   id?: string;
   name: string;
-  genre: BandGenreEnum;
-  country: string;
+  genre: string;
   state: string;
   city: string;
   neighborhood: string;
@@ -20,8 +19,7 @@ type BandProps = {
 
 export class BandEntity extends BaseEntity {
   readonly name: string;
-  readonly genre: BandGenreEnum;
-  readonly country: string;
+  readonly genre: string;
   readonly state: string;
   readonly city: string;
   readonly neighborhood: string;
@@ -35,7 +33,6 @@ export class BandEntity extends BaseEntity {
     super(props);
     this.name = props.name;
     this.genre = props.genre;
-    this.country = props.country;
     this.state = props.state;
     this.city = props.city;
     this.neighborhood = props.neighborhood;

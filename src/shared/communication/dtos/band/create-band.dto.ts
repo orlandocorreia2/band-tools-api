@@ -1,28 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  IsDate,
-  IsEnum,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
-import { BandGenreEnum } from '@shared/commons/enums/band.enum';
+import { IsDate, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateBandDto {
-  @ApiProperty({ example: 'Electric Grave', minLength: 3 })
+  @ApiProperty({ example: 'Nome da Banda', minLength: 3 })
   @IsString()
   @MinLength(3)
   name: string;
 
-  @ApiProperty({ enum: BandGenreEnum, example: BandGenreEnum.HeavyMetal })
-  @IsEnum(BandGenreEnum)
-  genre: BandGenreEnum;
-
-  @ApiProperty({ example: 'Brazil' })
+  @ApiProperty({ example: 'Heavy Metal' })
   @IsString()
   @MinLength(1)
-  country: string;
+  genre: string;
 
   @ApiProperty({ example: 'São Paulo' })
   @IsString()
@@ -34,22 +23,22 @@ export class CreateBandDto {
   @MinLength(1)
   city: string;
 
-  @ApiProperty({ example: 'Jardim Ibirapuera' })
+  @ApiProperty({ example: 'Centro' })
   @IsString()
   @MinLength(1)
   neighborhood: string;
 
-  @ApiProperty({ example: 'Rua Solar dos Quevedos, 06' })
+  @ApiProperty({ example: 'Avenida Paulista, 1000' })
   @IsString()
   @MinLength(1)
   address: string;
 
-  @ApiProperty({ example: '2017-01-01' })
+  @ApiProperty({ example: '2026-06-01' })
   @IsDate()
   @Type(() => Date)
   started_at: Date;
 
-  @ApiPropertyOptional({ example: 'A legendary heavy metal band.' })
+  @ApiPropertyOptional({ example: 'Descrição da banda.' })
   @IsOptional()
   @IsString()
   description?: string;

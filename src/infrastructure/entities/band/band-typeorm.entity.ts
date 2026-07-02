@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { BandGenreEnum, BandStatusEnum } from '@shared/commons/enums';
+import { BandStatusEnum } from '@shared/commons/enums';
 import { BaseTypeormEntity } from '../base-typeorm.entity';
 
 @Entity('bands')
@@ -7,14 +7,11 @@ export class BandTypeormEntity extends BaseTypeormEntity {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ type: 'varchar', default: BandGenreEnum.Rock })
+  @Column({ type: 'varchar', default: 'Heavy Metal' })
   genre: string;
 
   @Column({ type: 'varchar', nullable: true })
   description: string;
-
-  @Column({ type: 'varchar', length: 100 })
-  country: string;
 
   @Column({ type: 'varchar', length: 100 })
   state: string;

@@ -1,10 +1,9 @@
 import { BandEntity } from '@domain/entities/band/band.entity';
-import { BandGenreEnum, BandStatusEnum } from '@shared/commons/enums/band.enum';
+import { BandStatusEnum } from '@shared/commons/enums/band.enum';
 
 const makeProps = () => ({
   name: 'The Beatles',
-  genre: BandGenreEnum.Rock,
-  country: 'UK',
+  genre: 'Rock',
   state: 'England',
   city: 'Liverpool',
   neighborhood: 'Woolton',
@@ -20,7 +19,6 @@ describe('BandEntity', () => {
 
     expect(band.name).toBe(props.name);
     expect(band.genre).toBe(props.genre);
-    expect(band.country).toBe(props.country);
     expect(band.state).toBe(props.state);
     expect(band.city).toBe(props.city);
     expect(band.neighborhood).toBe(props.neighborhood);

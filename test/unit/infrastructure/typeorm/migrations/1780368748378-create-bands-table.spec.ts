@@ -50,7 +50,6 @@ describe('CreateBandsTable1780368748378', () => {
           'name',
           'genre',
           'description',
-          'country',
           'state',
           'city',
           'neighborhood',

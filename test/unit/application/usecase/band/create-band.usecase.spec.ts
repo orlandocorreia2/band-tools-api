@@ -3,12 +3,11 @@ import type { CreateBandUseCaseInterface } from '@usecase/band/interfaces';
 import { IBandRepository } from '@domain/repositories/band/band.repository.interface';
 import { BandEntity } from '@domain/entities/band/band.entity';
 import { CreateBandDto } from '@shared/communication/dtos/band/create-band.dto';
-import { BandGenreEnum, BandStatusEnum } from '@shared/commons/enums/band.enum';
+import { BandStatusEnum } from '@shared/commons/enums/band.enum';
 
 const makeDto = (): CreateBandDto => ({
   name: 'The Beatles',
-  genre: BandGenreEnum.Rock,
-  country: 'UK',
+  genre: 'Rock',
   state: 'England',
   city: 'Liverpool',
   neighborhood: 'Woolton',
@@ -40,7 +39,6 @@ describe('CreateBandUseCase', () => {
     const savedBand: BandEntity = bandRepository.save.mock.calls[0][0];
     expect(savedBand.name).toBe(dto.name);
     expect(savedBand.genre).toBe(dto.genre);
-    expect(savedBand.country).toBe(dto.country);
     expect(savedBand.status).toBe(dto.status);
   });
 

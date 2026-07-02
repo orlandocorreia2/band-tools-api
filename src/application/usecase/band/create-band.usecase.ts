@@ -12,7 +12,6 @@ export class CreateBandUseCase implements CreateBandUseCaseInterface {
     const band = new BandEntity({
       name: dto.name,
       genre: dto.genre,
-      country: dto.country,
       state: dto.state,
       city: dto.city,
       neighborhood: dto.neighborhood,

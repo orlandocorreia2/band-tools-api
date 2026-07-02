@@ -1,12 +1,11 @@
 import { BandController } from '@http/band/band.controller';
 import type { CreateBandUseCaseInterface } from '@usecase/band/interfaces/create-band.usecase.interface';
 import { CreateBandDto } from '@shared/communication/dtos/band/create-band.dto';
-import { BandGenreEnum, BandStatusEnum } from '@shared/commons/enums/band.enum';
+import { BandStatusEnum } from '@shared/commons/enums/band.enum';
 
 const makeDto = (): CreateBandDto => ({
   name: 'The Beatles',
-  genre: BandGenreEnum.Rock,
-  country: 'UK',
+  genre: 'Rock',
   state: 'England',
   city: 'Liverpool',
   neighborhood: 'Woolton',

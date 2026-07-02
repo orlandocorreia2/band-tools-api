@@ -34,48 +34,52 @@ The Band Tools API does not yet have a Band entity. This is the first domain mod
 **Reason:** Preserves band history, facilitates auditing, and prevents accidental data loss.  
 **Alternative considered:** Hard delete — rejected for making traceability impossible.
 
-### 3. `BandGenreEnum` enum in shared layer, stored as plain string in the database
+### 3. `genre` as a free-form string, no fixed catalog
 
-**Decision:** `genre` represented by a TypeScript enum (`BandGenreEnum`) defined in `src/shared/commons/enums/band.enum.ts` with well-known genres. Stored as plain `varchar` in the database.
+**Decision:** `genre` is a plain string field with no fixed catalog (no `BandGenreEnum`), validated only as a required non-empty string (`@IsString() @MinLength(1)` on the DTO). Stored as plain `varchar` in the database.  
+**Reason:** Musical genres are too varied and fast-moving to fit a closed catalog — bands routinely self-describe with hybrid or niche genres. A free-form value avoids blocking registration on an incomplete enum and avoids maintaining/expanding a fixed list over time. Basic string/non-empty validation is still required so the field can't be silently stripped or submitted blank.  
+**Alternative considered:** `BandGenreEnum` with a fixed set of well-known genres — rejected for constraining bands to a catalog that will never be complete and would require code changes to extend. Leaving `genre` fully unvalidated — rejected because NestJS's `whitelist: true` `ValidationPipe` strips any DTO property without at least one `class-validator` decorator, silently dropping the client's value.
 
-`Rock`, `Alternative Rock`, `Indie Rock`, `Hard Rock`, `Progressive Rock`, `Psychedelic Rock`, `Blues Rock`, `Post Rock`, `Grunge`, `Punk`, `New Wave`, `Metal`, `Heavy Metal`, `Doom Metal`, `Gothic Metal`, `Thrash Metal`, `Death Metal`, `Black Metal`, `Pop`, `Jazz`, `Blues`, `Classical`, `Electronic`, `Techno`, `House`, `Ambient`, `Hip Hop`, `R And B`, `Funk`, `Soul`, `Disco`, `Reggae`, `Ska`, `Country`, `Folk`, `Gospel`, `Latin`, `Samba`, `Forro`, `Bossa Nova`, `MPB`, `Axe`, `Pagode`, `Trap`, `Other`.  
-**Reason:** Constrains input to a known set at the application level without locking the database schema to a fixed type. `other` covers edge cases without requiring schema changes.  
-**Alternative considered:** Free-form string — rejected for allowing inconsistent and misspelled values.
+### 4. No `country` field
 
-### 4. `BandStatusEnum` enum in shared layer, stored as plain string in the database
+**Decision:** The band registration does not include a `country` field. Location is expressed only via `state`, `city`, `neighborhood`, and `address`.  
+**Reason:** The product has national scope (Brazil only) at this stage, making a country field redundant for every record.  
+**Alternative considered:** Keeping `country` as a required string — rejected as unnecessary given the single-country scope; can be reintroduced if the product expands internationally.
+
+### 5. `BandStatusEnum` enum in shared layer, stored as plain string in the database
 
 **Decision:** `status` represented by a TypeScript enum (`Active | Inactive`) defined in `src/shared/commons/enums/band.enum.ts`. In the database, the column is mapped as a plain `varchar` — no PostgreSQL enum type.  
 **Reason:** Storing as a plain string avoids `ALTER TYPE` migrations whenever new statuses are added. The TypeScript enum still enforces valid values at the application level via `class-validator`.  
 **Alternative considered:** PostgreSQL native enum — rejected because adding new values requires a database migration even when the change is trivial at the application level.
 
-### 5. `IBandRepository` interface in the domain layer
+### 6. `IBandRepository` interface in the domain layer
 
 **Decision:** The domain defines the interface; `BandRepository` (TypeORM) implements it in `src/infrastructure/band`.  
 **Reason:** Dependency inversion (SOLID-D) — use cases depend on abstraction, not on the ORM.
 
-### 6. `CreateBandUseCaseInterface` injected into the controller via token + factory module
+### 7. `CreateBandUseCaseInterface` injected into the controller via token + factory module
 
 **Decision:** `BandController` receives the use case through `@Inject(BandFactoryModule.CREATE_BAND_USE_CASE)` typed as `CreateBandUseCaseInterface`. The concrete `CreateBandUseCase` is wired in `band-factory.module.ts` using a `useFactory` provider — following the same pattern as `HealthCheckFactoryModule`.  
 **Reason:** Keeps the controller decoupled from the concrete implementation. The factory module centralises all dependency wiring for the band context, making it easy to swap implementations or mock in tests.  
 **Alternative considered:** Injecting the concrete class directly — rejected for coupling the HTTP layer to the application layer implementation.
 
-### 7. `image` as an optional URL string
+### 8. `image` as an optional URL string
 
 **Decision:** `image` is stored as a plain URL string (nullable), with no file upload logic in this module.  
 **Reason:** Keeps the module simple and decoupled from storage concerns. File upload can be handled by a dedicated media module in the future.  
 **Alternative considered:** Multipart file upload — rejected as out of scope for this iteration.
 
-### 8. `started_at` as a required field
+### 9. `started_at` as a required field
 
 **Decision:** `started_at` is required in the request and cannot be null.  
 **Reason:** The formation date is considered essential information for band registration in this domain.
 
-### 9. `execute` returns `Promise<void>`
+### 10. `execute` returns `Promise<void>`
 
 **Decision:** `CreateBandUseCase.execute()` returns `Promise<void>`; the controller responds with HTTP 201 and no body.  
 **Reason:** Band registration is a command with no query need at this stage. Keeping the response empty avoids coupling the HTTP layer to a response DTO.
 
-### 10. TypeORM entity named `BandTypeormEntity` to avoid name conflict
+### 11. TypeORM entity named `BandTypeormEntity` to avoid name conflict
 
 **Decision:** The TypeORM entity is named `BandTypeormEntity` (at `src/infrastructure/database/entities/band/band-typeorm.entity.ts`) to distinguish it from the domain entity `BandEntity`.  
 **Reason:** Having two classes named `BandEntity` in the same project causes ambiguity in imports and cognitive overhead.
@@ -83,3 +87,4 @@ The Band Tools API does not yet have a Band entity. This is the first domain mod
 ## Risks / Trade-offs
 
 - **[Trade-off] Soft delete `deleted_at` field present but unused in this change** → The column is created in the migration for future use; no delete operation is exposed yet. Mitigation: document clearly that the field is reserved for a future change.
+- **[Trade-off] `genre` has no format validation beyond non-empty string** → Inconsistent values (typos, casing variants, duplicated genres worded differently) are accepted since there's no fixed catalog. Mitigation: acceptable at this stage given the flexibility goal; revisit with normalization or suggestion-based input if data quality becomes an issue.

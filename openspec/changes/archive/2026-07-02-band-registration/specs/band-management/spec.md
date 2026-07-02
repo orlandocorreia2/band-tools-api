@@ -5,8 +5,7 @@ The system SHALL allow registering a new band with the following fields and vali
 
 **Required fields:**
 - `name`: string, minimum 3 characters
-- `genre`: must be a valid `BandGenreEnum` value
-- `country`: string, minimum 1 character
+- `genre`: free-form string, minimum 1 character (no fixed catalog/enum)
 - `state`: string, minimum 1 character
 - `city`: string, minimum 1 character
 - `neighborhood`: string, minimum 1 character
@@ -36,8 +35,8 @@ All validations SHALL be enforced via `class-validator` decorators on the DTO an
 - **WHEN** a `POST /bands` request is sent with `name` containing fewer than 3 characters
 - **THEN** the system SHALL return HTTP status 422 with a validation error message
 
-#### Scenario: Registration with invalid genre
-- **WHEN** a `POST /bands` request is sent with a `genre` value outside the allowed `BandGenreEnum` values
+#### Scenario: Registration with missing genre
+- **WHEN** a `POST /bands` request is sent with `genre` missing or empty
 - **THEN** the system SHALL return HTTP status 422 with a validation error message
 
 #### Scenario: Registration with invalid status

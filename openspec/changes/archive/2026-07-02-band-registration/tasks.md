@@ -1,16 +1,15 @@
 ## 1. Domain
 
-- [x] 1.1 Create `BandGenreEnum` and `BandStatusEnum` enums at `src/shared/commons/enums/band.enum.ts`; `BandStatusEnum` values: `active`, `inactive`; `BandGenreEnum` values: `rock`, `alternative_rock`, `indie_rock`, `hard_rock`, `progressive_rock`, `psychedelic_rock`, `blues_rock`, `post_rock`, `grunge`, `punk`, `new_wave`, `metal`, `heavy_metal`, `doom_metal`, `gothic_metal`, `thrash_metal`, `death_metal`, `black_metal`, `pop`, `jazz`, `blues`, `classical`, `electronic`, `techno`, `house`, `ambient`, `hip_hop`, `r_and_b`, `funk`, `soul`, `disco`, `reggae`, `ska`, `country`, `folk`, `gospel`, `latin`, `samba`, `forro`, `bossa_nova`, `mpb`, `axe`, `pagode`, `trap`, `other`
+- [x] 1.1 Create `BandStatusEnum` enum at `src/shared/commons/enums/band.enum.ts`; values: `Active`, `Inactive`. `genre` is a free-form string — no dedicated enum
 - [x] 1.2 Create abstract `BaseEntity` at `src/domain/entities/base.entity.ts` with `id`, `created_at`, and `updated_at` fields; all set in the constructor — `id` generated as UUIDv7, `created_at` and `updated_at` set to `new Date()`
-- [x] 1.3 Create `BandEntity` at `src/domain/entities/band/band.entity.ts` extending `BaseEntity`; constructor receives a typed props object with all required fields (`name`, `genre`, `country`, `state`, `city`, `neighborhood`, `address`, `started_at`, `status`) and optional fields (`description`, `image`) and assigns each to its property; `id`, `created_at`, and `updated_at` are set by calling `super()`
+- [x] 1.3 Create `BandEntity` at `src/domain/entities/band/band.entity.ts` extending `BaseEntity`; constructor receives a typed props object with all required fields (`name`, `genre`, `state`, `city`, `neighborhood`, `address`, `started_at`, `status`) and optional fields (`description`, `image`) and assigns each to its property; `id`, `created_at`, and `updated_at` are set by calling `super()`
 - [x] 1.4 Create `IBandRepository` interface at `src/domain/repositories/band/band.repository.interface.ts` with method signature `save(band: BandEntity): Promise<void>`
 
 ## 2. DTOs
 
 - [x] 2.1 Create `CreateBandDto` at `src/shared/communication/dtos/band/create-band.dto.ts` with the following fields and decorators:
   - `name`: `@IsString() @MinLength(3)` — required
-  - `genre`: `@IsEnum(BandGenreEnum)` — required
-  - `country`: `@IsString() @MinLength(1)` — required
+  - `genre`: `@IsString() @MinLength(1)` — required, free-form string (no fixed catalog/enum)
   - `state`: `@IsString() @MinLength(1)` — required
   - `city`: `@IsString() @MinLength(1)` — required
   - `neighborhood`: `@IsString() @MinLength(1)` — required
@@ -30,7 +29,7 @@
 
 - [x] 4.1 Create `BandTypeormEntity` at `src/infrastructure/database/entities/band/band-typeorm.entity.ts` mapping all fields to the database (named `BandTypeormEntity` to avoid conflict with the domain `BandEntity`)
 - [x] 4.2 Create `BandRepository` at `src/infrastructure/database/repositories/band/band.repository.ts` implementing `IBandRepository`
-- [x] 4.3 Generate migration with `npm run migration:generate -- --name=create-bands-table`; ensure `status` column has `DEFAULT 'active'` and `genre` column has `DEFAULT 'rock'` in the generated SQL
+- [x] 4.3 Generate migration with `npm run migration:generate -- --name=create-bands-table`; ensure `status` column has `DEFAULT 'active'` and `genre` column has `DEFAULT 'Heavy Metal'` in the generated SQL; no `country` column
 - [x] 4.4 Run the migration with `npm run migration:run` and validate the table in the database
 
 ## 5. HTTP Layer
@@ -52,9 +51,9 @@
 - [x] 6.3 Write unit tests for `CreateBandUseCase` — mock `IBandRepository`, assert `save` is called with a `BandEntity` instance and `execute` returns `void`
 - [x] 6.4 Write unit tests for `BandRepository` — mock TypeORM `DataSource`/`Repository`, assert `save` persists the entity and maps correctly to domain
 - [x] 6.5 Write unit tests for `BandController` — mock `CreateBandUseCaseInterface`, assert `POST /bands` calls `execute` and returns HTTP 201 with no body
-- [x] 6.6 Write unit tests for `CreateBandDto` — use `class-validator` `validate()` to assert each required field fails when absent and each validation rule is enforced (min length, enum values, date)
+- [x] 6.6 Write unit tests for `CreateBandDto` — use `class-validator` `validate()` to assert each required field, including `genre`, fails when absent and each validation rule is enforced (min length, date)
 - [x] 6.7 Verify 100% coverage for all files above with `npm run test:cov`
 
 ## 7. E2E Tests
 
-- [x] 7.1 Write e2e tests for `POST /bands` (scenarios: success, missing required field, invalid status)
+- [x] 7.1 Write e2e tests for `POST /bands` (scenarios: success, missing required field including `genre`, invalid status)

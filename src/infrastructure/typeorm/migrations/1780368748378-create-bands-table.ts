@@ -24,18 +24,12 @@ export class CreateBandsTable1780368748378 implements MigrationInterface {
             name: 'genre',
             type: 'varchar',
             isNullable: false,
-            default: "'rock'",
+            default: "'Heavy Metal'",
           },
           {
             name: 'description',
             type: 'varchar',
             isNullable: true,
-          },
-          {
-            name: 'country',
-            type: 'varchar',
-            length: '100',
-            isNullable: false,
           },
           {
             name: 'state',
