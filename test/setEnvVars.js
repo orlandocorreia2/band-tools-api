@@ -11,3 +11,4 @@ process.env.DB_NAME = 'band_tools_db';
 process.env.DB_TYPE = 'postgres';
 process.env.DB_SYNCHRONIZE = 'false';
 process.env.DB_AUTO_LOAD_ENTITIES = 'true';
+process.env.BCRYPT_SALT_ROUNDS = '10';

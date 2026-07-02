@@ -41,4 +41,8 @@ export class EnvConfigService {
   get dbAutoLoadEntities() {
     return this.configService.get<boolean>('DB_AUTO_LOAD_ENTITIES');
   }
+
+  get bcryptSaltRounds() {
+    return this.configService.get<number>('BCRYPT_SALT_ROUNDS');
+  }
 }

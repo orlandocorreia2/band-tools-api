@@ -74,9 +74,20 @@ describe('main', () => {
     }));
   });
 
+  const originalNodeEnv = process.env.NODE_ENV;
+  const originalPort = process.env.PORT;
+
+  const restoreEnvVar = (key: string, value: string | undefined) => {
+    if (value === undefined) {
+      delete process.env[key];
+      return;
+    }
+    process.env[key] = value;
+  };
+
   afterEach(() => {
-    delete process.env.NODE_ENV;
-    delete process.env.PORT;
+    restoreEnvVar('NODE_ENV', originalNodeEnv);
+    restoreEnvVar('PORT', originalPort);
   });
 
   it('should create app with FastifyAdapter and bufferLogs', async () => {

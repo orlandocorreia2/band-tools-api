@@ -44,7 +44,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Electric Grave\",\r\n  \"genre\": \"Heavy Metal\",\r\n  \"country\": \"Brazil\",\r\n  \"state\": \"São Paulo\",\r\n  \"city\": \"São Paulo\",\r\n  \"neighborhood\": \"Jardim Ibirapuera\",\r\n  \"address\": \"Rua Solar dos Quevedos, 06\",\r\n  \"started_at\": \"2017-01-01\",\r\n  \"description\": \"A legendary heavy metal band.\"\r\n}",
+              "raw": "{\r\n  \"name\": \"Nome da Banda\",\r\n  \"genre\": \"Heavy Metal\",\r\n  \"state\": \"São Paulo\",\r\n  \"city\": \"São Paulo\",\r\n  \"neighborhood\": \"Centro\",\r\n  \"address\": \"Avenida Paulista, 1000\",\r\n  \"started_at\": \"2026-06-01\",\r\n  \"description\": \"Descrição da Banda\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -58,6 +58,42 @@
               ],
               "path": [
                 "bands"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"first_name\": \"João\",\n    \"last_name\": \"Silva\",\n    \"email\": \"joao.silva@example.com\",\n    \"phone\": \"11912345678\",\n    \"password\": \"Senha123\"\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
               ]
             }
           },

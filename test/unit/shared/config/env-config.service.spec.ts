@@ -94,4 +94,13 @@ describe('EnvConfigService', () => {
       expect(mockConfigService.get).toHaveBeenCalledWith('DB_AUTO_LOAD_ENTITIES');
     });
   });
+
+  describe('bcryptSaltRounds', () => {
+    it('should delegate to configService.get with BCRYPT_SALT_ROUNDS key', () => {
+      mockConfigService.get.mockReturnValue(10);
+
+      expect(service.bcryptSaltRounds).toBe(10);
+      expect(mockConfigService.get).toHaveBeenCalledWith('BCRYPT_SALT_ROUNDS');
+    });
+  });
 });

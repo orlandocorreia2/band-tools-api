@@ -1,4 +1,4 @@
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, Transform, Type } from 'class-transformer';
 import { name } from '@package.json';
 import {
   IsBoolean,
@@ -10,6 +10,9 @@ import {
   Min,
   validateSync,
 } from 'class-validator';
+
+const toBoolean = ({ obj, key }: { obj: Record<string, unknown>; key: string }) =>
+  obj[key] === true || obj[key] === 'true';
 
 enum Environment {
   Development = 'development',
@@ -23,6 +26,7 @@ export class EnvironmentVariables {
   @IsEnum(Environment)
   STAGE: string;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @Max(65535)
@@ -36,6 +40,7 @@ export class EnvironmentVariables {
   @IsString()
   DB_HOST: string;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @Max(65535)
@@ -57,11 +62,19 @@ export class EnvironmentVariables {
   @IsString()
   DB_TYPE: string;
 
+  @Transform(toBoolean)
   @IsBoolean()
   DB_SYNCHRONIZE: boolean;
 
+  @Transform(toBoolean)
   @IsBoolean()
   DB_AUTO_LOAD_ENTITIES: boolean;
+
+  @Type(() => Number)
+  @IsNumber()
+  @Min(4)
+  @Max(20)
+  BCRYPT_SALT_ROUNDS: number;
 }
 
 export function validate(config: Record<string, unknown>) {

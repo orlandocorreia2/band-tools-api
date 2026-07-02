@@ -14,6 +14,7 @@ describe('env-config.validation', () => {
     DB_PORT: Number(process.env.DB_PORT),
     DB_SYNCHRONIZE: process.env.DB_SYNCHRONIZE === 'true',
     DB_AUTO_LOAD_ENTITIES: process.env.DB_AUTO_LOAD_ENTITIES === 'true',
+    BCRYPT_SALT_ROUNDS: Number(process.env.BCRYPT_SALT_ROUNDS),
   });
 
   afterEach(() => {
@@ -44,6 +45,28 @@ describe('env-config.validation', () => {
 
     it('should throw when config has validation errors', () => {
       expect(() => validate({ ...validConfig(), STAGE: 'invalid_stage' })).toThrow();
+    });
+
+    it('should parse raw string "false" as boolean false for DB_SYNCHRONIZE', () => {
+      const result = validate({
+        ...validConfig(),
+        DB_SYNCHRONIZE: 'false',
+        DB_AUTO_LOAD_ENTITIES: 'false',
+      });
+
+      expect(result.DB_SYNCHRONIZE).toBe(false);
+      expect(result.DB_AUTO_LOAD_ENTITIES).toBe(false);
+    });
+
+    it('should parse raw string "true" as boolean true for DB_SYNCHRONIZE', () => {
+      const result = validate({
+        ...validConfig(),
+        DB_SYNCHRONIZE: 'true',
+        DB_AUTO_LOAD_ENTITIES: 'true',
+      });
+
+      expect(result.DB_SYNCHRONIZE).toBe(true);
+      expect(result.DB_AUTO_LOAD_ENTITIES).toBe(true);
     });
   });
 });
