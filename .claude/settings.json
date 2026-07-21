@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openspec instructions *)",
+      "Bash(xargs -I{} sh -c 'echo ==={}===; cat {}')",
+      "Bash(npm view *)",
+      "Bash(docker compose *)",
+      "Bash(netstat -tlnp)",
+      "Bash(pg_isready -h localhost -p 5432)",
+      "Bash(docker rm *)",
+      "Bash(DB_PORT=5434 docker compose -f docker-compose.dev.yml up -d postgres)",
+      "Bash(DB_HOST=localhost DB_PORT=5434 npm run migration:run)",
+      "Bash(DB_HOST=localhost DB_PORT=5434 npm run test:e2e)",
+      "Bash(docker stop *)",
+      "Bash(docker volume *)",
+      "Bash(docker network *)",
+      "Bash(git stash *)",
+      "Bash(git checkout *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('progress:', d['progress']\\); print\\('state:', d['state']\\)\")"
+    ]
+  }
+}

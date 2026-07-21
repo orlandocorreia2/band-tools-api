@@ -49,6 +49,6 @@
 - [x] 7.2 Rodar `npm run test:e2e` e confirmar que todos os testes passam
 - [x] 7.3 Rodar lint/format (`npm run lint`) e corrigir os problemas introduzidos por esta mudança (os erros remanescentes são débito técnico pré-existente no `main`, ver nota abaixo)
 - [x] 7.4 Atualizar documentação Swagger (tag `auth`, `@ApiBearerAuth` em `POST /bands`, exemplos de request/response)
-- [ ] 7.5 Commit seguindo Conventional Commits (ex.: `feat: user authentication with jwt`)
+- [x] 7.5 Commit seguindo Conventional Commits (ex.: `feat: user authentication with jwt`)
 
 **Nota (7.3):** `npm run lint` já falhava no `main` antes desta mudança (~134 erros pré-existentes, principalmente `@typescript-eslint/unbound-method` em specs que fazem `expect(mock.metodo)` e `no-unsafe-*` em specs de `*FactoryModule` que usam `(module.providers as any[])`). Esta mudança seguiu os mesmos padrões já estabelecidos nesses arquivos de teste para manter consistência; os únicos erros exclusivos do código novo (`jwt-auth.guard.spec.ts`, `jwt-module-options.spec.ts`) foram corrigidos com tipagem explícita em vez de `any`.
