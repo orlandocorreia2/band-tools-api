@@ -2,6 +2,17 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.4.0] - 2026-07-21
+
+#### Feat
+
+- Autenticação de usuário (`POST /auth/login`): recebe `email` e `password`, localiza o usuário e compara a senha contra o hash `bcrypt` armazenado via `IPasswordHasher.compare`
+- Emissão de JWT assinado (`accessToken`) em caso de sucesso, com payload `{ sub: user.id, email: user.email }`; expiração/segredo configuráveis via `JWT_SECRET`/`JWT_EXPIRES_IN`
+- `JwtAuthGuard` (`CanActivate`) para proteger rotas individualmente via `@UseGuards(JwtAuthGuard)`, extraindo e validando o token do header `Authorization: Bearer <token>` e anexando `id`/`email` do usuário autenticado à requisição; rotas sem o guard permanecem públicas
+- Guard aplicado em `POST /bands` como primeira rota protegida
+- Validações via `class-validator` e documentação Swagger (`@ApiBearerAuth`) para o novo endpoint e para `POST /bands`
+- Testes unitários com 100% de cobertura e testes e2e para login e para o acesso protegido a `POST /bands`
+
 ### [Version - 0.3.0] - 2026-07-02
 
 #### Feat
