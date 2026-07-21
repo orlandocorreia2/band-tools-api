@@ -77,7 +77,7 @@ describe('ExceptionFilterMiddleware', () => {
         detail: 'Something went wrong',
       };
 
-      middleware.catch(exception as any, mockHost);
+      middleware.catch(exception, mockHost);
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({ errors: [] }),

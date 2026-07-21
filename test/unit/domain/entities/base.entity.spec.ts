@@ -1,7 +1,9 @@
 import { BaseEntity } from '@domain/entities/base.entity';
 
 class ConcreteEntity extends BaseEntity {
-  constructor(props: { id?: string; updated_at?: Date; deleted_at?: Date } = {}) {
+  constructor(
+    props: { id?: string; updated_at?: Date; deleted_at?: Date } = {},
+  ) {
     super(props);
   }
 }
@@ -25,7 +27,9 @@ describe('BaseEntity', () => {
     const entity = new ConcreteEntity();
     const after = new Date();
     expect(entity.created_at).toBeInstanceOf(Date);
-    expect(entity.created_at.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    expect(entity.created_at.getTime()).toBeGreaterThanOrEqual(
+      before.getTime(),
+    );
     expect(entity.created_at.getTime()).toBeLessThanOrEqual(after.getTime());
   });
 
@@ -34,7 +38,9 @@ describe('BaseEntity', () => {
     const entity = new ConcreteEntity();
     const after = new Date();
     expect(entity.updated_at).toBeInstanceOf(Date);
-    expect(entity.updated_at.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    expect(entity.updated_at.getTime()).toBeGreaterThanOrEqual(
+      before.getTime(),
+    );
     expect(entity.updated_at.getTime()).toBeLessThanOrEqual(after.getTime());
   });
 

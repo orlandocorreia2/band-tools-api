@@ -26,6 +26,7 @@ describe('CreateUserUseCase', () => {
     };
     passwordHasher = {
       hash: jest.fn().mockResolvedValue('hashed-password'),
+      compare: jest.fn(),
     };
     useCase = new CreateUserUseCase(userRepository, passwordHasher);
   });

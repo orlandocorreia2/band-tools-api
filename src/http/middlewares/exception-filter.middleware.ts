@@ -14,7 +14,7 @@ import { errors as helperErrors } from '@shared/helpers';
 export class ExceptionFilterMiddleware implements ExceptionFilter {
   catch(exception: ProblemsDetailInterface, host: ArgumentsHost) {
     const { type, code, status, title, detail, errors } = exception;
-    let statusCode = code || status || HttpStatus.INTERNAL_SERVER_ERROR;
+    const statusCode = code || status || HttpStatus.INTERNAL_SERVER_ERROR;
     const response = {
       error: helperErrors.internalServer.title,
       message: helperErrors.internalServer.detail,

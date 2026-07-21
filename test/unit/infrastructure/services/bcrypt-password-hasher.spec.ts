@@ -1,5 +1,6 @@
 jest.mock('bcrypt', () => ({
   hash: jest.fn(),
+  compare: jest.fn(),
 }));
 
 import * as bcrypt from 'bcrypt';
@@ -35,5 +36,29 @@ describe('BcryptPasswordHasher', () => {
     const result = await hasher.hash('Password1');
 
     expect(result).toBe('hashed-value');
+  });
+
+  it('should call bcrypt.compare with the plain password and the stored hash', async () => {
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+    await hasher.compare('Password1', 'hashed-value');
+
+    expect(bcrypt.compare).toHaveBeenCalledWith('Password1', 'hashed-value');
+  });
+
+  it('should return true when bcrypt.compare matches', async () => {
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+    const result = await hasher.compare('Password1', 'hashed-value');
+
+    expect(result).toBe(true);
+  });
+
+  it('should return false when bcrypt.compare does not match', async () => {
+    (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+    const result = await hasher.compare('WrongPassword', 'hashed-value');
+
+    expect(result).toBe(false);
   });
 });

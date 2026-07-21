@@ -11,8 +11,13 @@ import {
   validateSync,
 } from 'class-validator';
 
-const toBoolean = ({ obj, key }: { obj: Record<string, unknown>; key: string }) =>
-  obj[key] === true || obj[key] === 'true';
+const toBoolean = ({
+  obj,
+  key,
+}: {
+  obj: Record<string, unknown>;
+  key: string;
+}) => obj[key] === true || obj[key] === 'true';
 
 enum Environment {
   Development = 'development',
@@ -75,6 +80,15 @@ export class EnvironmentVariables {
   @Min(4)
   @Max(20)
   BCRYPT_SALT_ROUNDS: number;
+
+  @IsNotEmpty()
+  @IsString()
+  JWT_SECRET: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  JWT_EXPIRES_IN: number;
 }
 
 export function validate(config: Record<string, unknown>) {

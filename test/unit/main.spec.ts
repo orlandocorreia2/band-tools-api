@@ -195,8 +195,9 @@ describe('main', () => {
       require('../../src/main');
       await flush();
 
-      const MockBaseException =
-        jest.requireMock('@shared/exceptions/base.exception').BaseException;
+      const MockBaseException = jest.requireMock(
+        '@shared/exceptions/base.exception',
+      ).BaseException;
 
       const validationErrors = [
         {
@@ -227,8 +228,9 @@ describe('main', () => {
       require('../../src/main');
       await flush();
 
-      const MockBaseException =
-        jest.requireMock('@shared/exceptions/base.exception').BaseException;
+      const MockBaseException = jest.requireMock(
+        '@shared/exceptions/base.exception',
+      ).BaseException;
 
       const validationErrors = [{ property: 'genre', constraints: undefined }];
 

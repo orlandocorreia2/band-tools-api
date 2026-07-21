@@ -23,7 +23,7 @@ describe('HealthCheckFactoryModule', () => {
 
     it('should register HealthCheckUseCase provider with correct token', () => {
       const result = HealthCheckFactoryModule.forRoot();
-      const provider = result.providers![0] as any;
+      const provider = result.providers[0] as any;
 
       expect(provider.provide).toBe(
         HealthCheckFactoryModule.HEALTH_CHECK_USE_CASE,
@@ -33,7 +33,7 @@ describe('HealthCheckFactoryModule', () => {
 
     it('should create a HealthCheckUseCase instance via useFactory', () => {
       const result = HealthCheckFactoryModule.forRoot();
-      const provider = result.providers![0] as any;
+      const provider = result.providers[0] as any;
 
       const instance = provider.useFactory();
 

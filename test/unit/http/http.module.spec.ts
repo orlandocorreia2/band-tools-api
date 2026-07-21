@@ -1,6 +1,8 @@
 jest.mock('../../../src/http/health-check/health-check-factory.module', () => ({
   HealthCheckFactoryModule: {
-    forRoot: jest.fn().mockReturnValue({ module: class HealthCheckFactoryModule {} }),
+    forRoot: jest
+      .fn()
+      .mockReturnValue({ module: class HealthCheckFactoryModule {} }),
     HEALTH_CHECK_USE_CASE: 'HealthCheckUseCase',
   },
 }));

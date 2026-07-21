@@ -10,4 +10,11 @@ export class BcryptPasswordHasher implements IPasswordHasher {
   async hash(plainPassword: string): Promise<string> {
     return bcrypt.hash(plainPassword, this.envConfigService.bcryptSaltRounds);
   }
+
+  async compare(
+    plainPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword);
+  }
 }

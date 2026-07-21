@@ -44,7 +44,9 @@ describe('env-config.validation', () => {
     });
 
     it('should throw when config has validation errors', () => {
-      expect(() => validate({ ...validConfig(), STAGE: 'invalid_stage' })).toThrow();
+      expect(() =>
+        validate({ ...validConfig(), STAGE: 'invalid_stage' }),
+      ).toThrow();
     });
 
     it('should parse raw string "false" as boolean false for DB_SYNCHRONIZE', () => {

@@ -26,7 +26,8 @@ function setupModule(version: string | undefined) {
     version,
   }));
 
-  return require('../../../../src/shared/commons/openapi.commons').OpenapiCommons;
+  return require('../../../../src/shared/commons/openapi.commons')
+    .OpenapiCommons;
 }
 
 describe('OpenapiCommons', () => {
@@ -40,12 +41,21 @@ describe('OpenapiCommons', () => {
     const result = new OpenapiCommons(mockApp).buildDocumentation();
 
     expect(mockBuilder.setTitle).toHaveBeenCalledWith('Band Tools API');
-    expect(mockBuilder.setDescription).toHaveBeenCalledWith('API for managing bands');
+    expect(mockBuilder.setDescription).toHaveBeenCalledWith(
+      'API for managing bands',
+    );
     expect(mockBuilder.setVersion).toHaveBeenCalledWith('2.0.0');
-    expect(mockBuilder.setLicense).toHaveBeenCalledWith('MIT', 'https://opensource.org/licenses/MIT');
-    expect(mockBuilder.setTermsOfService).toHaveBeenCalledWith('https://band-tools.com.br/terms');
+    expect(mockBuilder.setLicense).toHaveBeenCalledWith(
+      'MIT',
+      'https://opensource.org/licenses/MIT',
+    );
+    expect(mockBuilder.setTermsOfService).toHaveBeenCalledWith(
+      'https://band-tools.com.br/terms',
+    );
     expect(mockBuilder.addServer).toHaveBeenCalledWith('http://localhost:3000');
-    expect(mockBuilder.addServer).toHaveBeenCalledWith('https://band-tools.com.br/v1');
+    expect(mockBuilder.addServer).toHaveBeenCalledWith(
+      'https://band-tools.com.br/v1',
+    );
     expect(mockBuilder.addGlobalParameters).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'authorization',

@@ -59,6 +59,7 @@ describe('UserFactoryModule', () => {
     } as any;
     const mockHasher: jest.Mocked<InstanceType<typeof BcryptPasswordHasher>> = {
       hash: jest.fn(),
+      compare: jest.fn(),
     };
 
     factoryProvider.useFactory(mockRepo, mockHasher);

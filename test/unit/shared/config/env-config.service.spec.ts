@@ -91,7 +91,9 @@ describe('EnvConfigService', () => {
       mockConfigService.get.mockReturnValue(true);
 
       expect(service.dbAutoLoadEntities).toBe(true);
-      expect(mockConfigService.get).toHaveBeenCalledWith('DB_AUTO_LOAD_ENTITIES');
+      expect(mockConfigService.get).toHaveBeenCalledWith(
+        'DB_AUTO_LOAD_ENTITIES',
+      );
     });
   });
 
@@ -101,6 +103,24 @@ describe('EnvConfigService', () => {
 
       expect(service.bcryptSaltRounds).toBe(10);
       expect(mockConfigService.get).toHaveBeenCalledWith('BCRYPT_SALT_ROUNDS');
+    });
+  });
+
+  describe('jwtSecret', () => {
+    it('should delegate to configService.get with JWT_SECRET key', () => {
+      mockConfigService.get.mockReturnValue('super-secret');
+
+      expect(service.jwtSecret).toBe('super-secret');
+      expect(mockConfigService.get).toHaveBeenCalledWith('JWT_SECRET');
+    });
+  });
+
+  describe('jwtExpiresIn', () => {
+    it('should delegate to configService.get with JWT_EXPIRES_IN key', () => {
+      mockConfigService.get.mockReturnValue(3600);
+
+      expect(service.jwtExpiresIn).toBe(3600);
+      expect(mockConfigService.get).toHaveBeenCalledWith('JWT_EXPIRES_IN');
     });
   });
 });

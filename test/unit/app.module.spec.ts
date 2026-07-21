@@ -34,7 +34,7 @@ describe('AppModule', () => {
     const mockApply = jest.fn().mockReturnValue({ forRoutes: mockForRoutes });
     const mockConsumer = { apply: mockApply };
 
-    new AppModule().configure(mockConsumer as any);
+    new AppModule().configure(mockConsumer);
 
     expect(mockApply).toHaveBeenCalledWith(TrimStringsMiddleware);
     expect(mockForRoutes).toHaveBeenCalledWith('*');

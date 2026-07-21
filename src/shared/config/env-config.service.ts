@@ -45,4 +45,12 @@ export class EnvConfigService {
   get bcryptSaltRounds() {
     return this.configService.get<number>('BCRYPT_SALT_ROUNDS');
   }
+
+  get jwtSecret() {
+    return this.configService.get<string>('JWT_SECRET');
+  }
+
+  get jwtExpiresIn() {
+    return this.configService.get<number>('JWT_EXPIRES_IN');
+  }
 }

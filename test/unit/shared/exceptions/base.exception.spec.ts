@@ -10,7 +10,7 @@ describe('BaseException', () => {
       errors: [{ field: 'name', message: 'required' }],
     };
 
-    const exception = new BaseException(error as any);
+    const exception = new BaseException(error);
 
     expect(exception).toBeInstanceOf(Error);
     expect(exception.message).toBe('Test Error');
