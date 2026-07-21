@@ -1,6 +1,7 @@
 import { UserEntity } from '@domain/entities/user/user.entity';
 
 export type UserFilter = {
+  id?: string;
   email?: string;
 };
 

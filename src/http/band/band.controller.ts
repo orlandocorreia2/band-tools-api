@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Inject,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -17,6 +18,8 @@ import { CreateBandDto } from '@shared/communication/dtos/band/create-band.dto';
 import type { CreateBandUseCaseInterface } from '@usecase/band/interfaces/create-band.usecase.interface';
 import { JwtAuthGuard } from '@http/middlewares/jwt-auth.guard';
 import { BandFactoryModule } from './band-factory.module';
+
+type AuthenticatedRequest = { user: { id: string } };
 
 @ApiTags('bands')
 @ApiBearerAuth()
@@ -39,7 +42,10 @@ export class BandController {
     description: 'Unprocessable Entity — validation failed',
   })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async create(@Body() dto: CreateBandDto): Promise<void> {
-    await this.createBandUseCase.execute(dto);
+  async create(
+    @Body() dto: CreateBandDto,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<void> {
+    await this.createBandUseCase.execute(dto, request.user.id);
   }
 }

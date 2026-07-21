@@ -1,8 +1,12 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getDataSourceToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
 import { ExceptionFilterMiddleware } from '@http/middlewares/exception-filter.middleware';
+import { BandMemberTypeormEntity } from '@infrastructure/entities/band-member/band-member-typeorm.entity';
+import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.entity';
 
 const uniqueEmail = () =>
   `band.owner.${Date.now()}.${Math.random().toString(36).slice(2)}@example.com`;
@@ -26,9 +30,18 @@ const validPayload = () => ({
   description: 'Descrição da Banda',
 });
 
+const decodeUserIdFromToken = (token: string): string => {
+  const [, payload] = token.split('.');
+  const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString()) as {
+    sub: string;
+  };
+  return decoded.sub;
+};
+
 describe('POST /bands (e2e)', () => {
   let app: INestApplication;
   let accessToken: string;
+  let userId: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -54,6 +67,7 @@ describe('POST /bands (e2e)', () => {
       .expect(200);
 
     accessToken = loginResponse.body.accessToken;
+    userId = decodeUserIdFromToken(accessToken);
   });
 
   afterAll(async () => {
@@ -66,6 +80,46 @@ describe('POST /bands (e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send(validPayload())
       .expect(201);
+  });
+
+  it('should link the authenticated user as owner in band_members', async () => {
+    const dataSource = app.get<DataSource>(getDataSourceToken());
+    const bandMemberRepository = dataSource.getRepository(
+      BandMemberTypeormEntity,
+    );
+
+    const ownedMemberships = await bandMemberRepository.find({
+      where: { user_id: userId, is_owner: true },
+    });
+
+    expect(ownedMemberships.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should return 404 when the authenticated user was deleted after the token was issued', async () => {
+    const userPayload = validUserPayload();
+    await request(app.getHttpServer())
+      .post('/users')
+      .send(userPayload)
+      .expect(201);
+
+    const loginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: userPayload.email, password: userPayload.password })
+      .expect(200);
+
+    const deletedUserToken: string = loginResponse.body.accessToken;
+    const deletedUserId = decodeUserIdFromToken(deletedUserToken);
+
+    const dataSource = app.get<DataSource>(getDataSourceToken());
+    await dataSource
+      .getRepository(UserTypeormEntity)
+      .delete({ id: deletedUserId });
+
+    await request(app.getHttpServer())
+      .post('/bands')
+      .set('Authorization', `Bearer ${deletedUserToken}`)
+      .send(validPayload())
+      .expect(404);
   });
 
   it('should return 401 when no token is provided', async () => {

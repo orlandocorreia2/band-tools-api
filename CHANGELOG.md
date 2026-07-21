@@ -2,6 +2,22 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.5.0] - 2026-07-21
+
+#### Feat
+
+- Vínculo automático de dono ao cadastrar uma banda (`POST /bands`): o usuário autenticado passa a ser registrado como dono (`is_owner = true`) em `band_members`, a nova tabela pivô do relacionamento N:N entre `users` e `bands`
+- Migration `create-band-members-table`: chave primária composta (`band_id`, `user_id`), foreign keys para `bands.id`/`users.id` com `ON DELETE CASCADE` e índice dedicado em `user_id` para buscas por usuário
+- `BandMemberEntity`, `IBandMemberRepository`, `BandMemberTypeormEntity` e `BandMemberRepository` na camada de domínio/infraestrutura
+- `IBandRepository.saveWithOwner`: persiste a banda e o vínculo de dono em uma única transação (`DataSource.transaction()`), com rollback conjunto caso qualquer uma das duas gravações falhe
+- `CreateBandUseCase` passa a validar se o usuário autenticado (`sub` do JWT) ainda existe em `users` antes de criar a banda, retornando HTTP 404 em vez de um erro de constraint do banco quando o registro do usuário foi excluído após a emissão do token
+- `IUserRepository`/`UserFilter` ganham suporte a busca por `id`
+- Testes unitários com 100% de cobertura e testes e2e cobrindo o vínculo automático de dono, o cascade de exclusão de `band_members` e o cenário de usuário excluído com token ainda válido
+
+#### Refactor
+
+- Removido o método `save` de `IBandRepository`/`BandRepository`, que ficou sem uso após `CreateBandUseCase` passar a depender exclusivamente de `saveWithOwner`; `BandRepository` não injeta mais `Repository<BandTypeormEntity>`, apenas `DataSource`
+
 ### [Version - 0.4.0] - 2026-07-21
 
 #### Feat
