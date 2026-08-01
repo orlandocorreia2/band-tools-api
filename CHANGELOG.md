@@ -2,6 +2,16 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.7.0] - 2026-07-31
+
+#### Feat
+
+- Listagem das bandas do usuário autenticado (`GET /bands`), protegida por `JwtAuthGuard`: retorna, sem paginação, todas as bandas vinculadas ao usuário via `band_members` (dono ou membro comum, indistintamente)
+- `IBandRepository` ganha `findAllByUserId(userId)`, implementado em `BandRepository` como join entre `bands` e `band_members` filtrado por `user_id` e ordenado por `created_at DESC`
+- `ListBandsByUserUseCase`, o primeiro caso de uso de leitura do projeto
+- `BandResponseDto` e `ListBandsResponseDto`, os primeiros response DTOs do projeto: a resposta segue o formato de envelope `{ "data": [...] }`, com o array de bandas na chave `data`
+- Testes unitários com 100% de cobertura e testes e2e cobrindo bandas próprias e de participação, usuário sem nenhuma banda, requisição sem autenticação (401) e exclusão de bandas pertencentes apenas a outros usuários
+
 ### [Version - 0.6.0] - 2026-07-31
 
 #### Feat

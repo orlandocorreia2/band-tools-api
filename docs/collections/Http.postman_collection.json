@@ -10,6 +10,55 @@
       "name": "Band",
       "item": [
         {
+          "name": "Repertoire",
+          "item": [
+            {
+              "name": "Create",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": \"Black Sabbath\",\r\n    \"tuning\": \"E Standard\",\r\n    \"tonality\": \"E Minor\",\r\n    \"bpm\": 120,\r\n    \"duration\": 219,\r\n    \"lyrics\": \"Letra da música...\",\r\n    \"notes\": \"Tocar mais devagar no refrão\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bands/019fba66-da0f-7bfd-b3e0-96e588f75d9b/song",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bands",
+                    "019fba66-da0f-7bfd-b3e0-96e588f75d9b",
+                    "song"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "Create",
           "request": {
             "auth": {
@@ -50,6 +99,39 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Index",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bands",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bands"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -68,7 +150,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"first_name\": \"João\",\n    \"last_name\": \"Silva\",\n    \"email\": \"joao.silva@example.com\",\n    \"phone\": \"11912345678\",\n    \"password\": \"Senha123\"\n  }",
+              "raw": "{\n    \"first_name\": \"Orlando\",\n    \"last_name\": \"Nascimento\",\n    \"email\": \"ocnascimento2@gmail.com\",\n    \"phone\": \"11912345678\",\n    \"password\": \"Band@Tools01\"\n  }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -117,7 +199,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"joao.silva@example.com\",\n    \"password\": \"Senha123\"\n}",
+              "raw": "{\n    \"email\": \"ocnascimento2@gmail.com\",\n    \"password\": \"Band@Tools01\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

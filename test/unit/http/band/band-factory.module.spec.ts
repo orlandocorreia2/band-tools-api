@@ -13,6 +13,12 @@ jest.mock('@usecase/band/create-band.usecase', () => ({
     .mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
+jest.mock('@usecase/band/list-bands-by-user.usecase', () => ({
+  ListBandsByUserUseCase: jest
+    .fn()
+    .mockImplementation(() => ({ execute: jest.fn() })),
+}));
+
 jest.mock('@infrastructure/entities/band/band-typeorm.entity', () => ({
   BandTypeormEntity: class BandTypeormEntity {},
 }));
@@ -45,6 +51,7 @@ jest.mock('@infrastructure/repository/user/user.repository', () => ({
 
 import { BandFactoryModule } from '@http/band/band-factory.module';
 import { CreateBandUseCase } from '@usecase/band/create-band.usecase';
+import { ListBandsByUserUseCase } from '@usecase/band/list-bands-by-user.usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BandTypeormEntity } from '@infrastructure/entities/band/band-typeorm.entity';
 import { BandMemberTypeormEntity } from '@infrastructure/entities/band-member/band-member-typeorm.entity';
@@ -60,6 +67,12 @@ describe('BandFactoryModule', () => {
 
   it('should expose CREATE_BAND_USE_CASE token', () => {
     expect(BandFactoryModule.CREATE_BAND_USE_CASE).toBe('CreateBandUseCase');
+  });
+
+  it('should expose LIST_BANDS_BY_USER_USE_CASE token', () => {
+    expect(BandFactoryModule.LIST_BANDS_BY_USER_USE_CASE).toBe(
+      'ListBandsByUserUseCase',
+    );
   });
 
   it('should return a DynamicModule from forRoot()', () => {
@@ -101,5 +114,27 @@ describe('BandFactoryModule', () => {
     factoryProvider.useFactory(mockBandRepo, mockUserRepo);
 
     expect(CreateBandUseCase).toHaveBeenCalledWith(mockBandRepo, mockUserRepo);
+  });
+
+  it('should export LIST_BANDS_BY_USER_USE_CASE token', () => {
+    const module = BandFactoryModule.forRoot();
+
+    expect(module.exports).toContain(
+      BandFactoryModule.LIST_BANDS_BY_USER_USE_CASE,
+    );
+  });
+
+  it('should wire ListBandsByUserUseCase with BandRepository via useFactory', () => {
+    const module = BandFactoryModule.forRoot();
+    const factoryProvider = (module.providers as any[]).find(
+      (p) => p.provide === BandFactoryModule.LIST_BANDS_BY_USER_USE_CASE,
+    );
+    const mockBandRepo: jest.Mocked<InstanceType<typeof BandRepository>> = {
+      findAllByUserId: jest.fn(),
+    } as any;
+
+    factoryProvider.useFactory(mockBandRepo);
+
+    expect(ListBandsByUserUseCase).toHaveBeenCalledWith(mockBandRepo);
   });
 });

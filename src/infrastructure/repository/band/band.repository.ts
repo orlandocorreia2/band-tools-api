@@ -35,4 +35,20 @@ export class BandRepository implements IBandRepository {
 
     return found as unknown as BandEntity | null;
   }
+
+  async findAllByUserId(userId: string): Promise<BandEntity[]> {
+    const bands = await this.dataSource
+      .getRepository(BandTypeormEntity)
+      .createQueryBuilder('band')
+      .innerJoin(
+        BandMemberTypeormEntity,
+        'band_member',
+        'band_member.band_id = band.id',
+      )
+      .where('band_member.user_id = :userId', { userId })
+      .orderBy('band.created_at', 'DESC')
+      .getMany();
+
+    return bands as unknown as BandEntity[];
+  }
 }

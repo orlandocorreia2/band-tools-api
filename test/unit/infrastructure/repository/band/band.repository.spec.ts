@@ -17,7 +17,16 @@ import { DataSource } from 'typeorm';
 describe('BandRepository', () => {
   let bandRepository: BandRepository;
   let manager: { create: jest.Mock; save: jest.Mock };
-  let bandTypeormRepository: { findOneBy: jest.Mock };
+  let queryBuilder: {
+    innerJoin: jest.Mock;
+    where: jest.Mock;
+    orderBy: jest.Mock;
+    getMany: jest.Mock;
+  };
+  let bandTypeormRepository: {
+    findOneBy: jest.Mock;
+    createQueryBuilder: jest.Mock;
+  };
   let dataSource: jest.Mocked<
     Pick<DataSource, 'transaction' | 'getRepository'>
   >;
@@ -27,8 +36,15 @@ describe('BandRepository', () => {
       create: jest.fn(),
       save: jest.fn().mockResolvedValue(undefined),
     };
+    queryBuilder = {
+      innerJoin: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      getMany: jest.fn().mockResolvedValue([]),
+    };
     bandTypeormRepository = {
       findOneBy: jest.fn().mockResolvedValue(null),
+      createQueryBuilder: jest.fn().mockReturnValue(queryBuilder),
     };
     dataSource = {
       transaction: jest
@@ -118,6 +134,51 @@ describe('BandRepository', () => {
       const result = await bandRepository.findById('missing-uuid');
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('findAllByUserId', () => {
+    const userId = 'user-uuid';
+
+    it('should join band_members and filter by the given userId', async () => {
+      await bandRepository.findAllByUserId(userId);
+
+      expect(bandTypeormRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'band',
+      );
+      expect(queryBuilder.innerJoin).toHaveBeenCalledWith(
+        expect.anything(),
+        'band_member',
+        'band_member.band_id = band.id',
+      );
+      expect(queryBuilder.where).toHaveBeenCalledWith(
+        'band_member.user_id = :userId',
+        { userId },
+      );
+    });
+
+    it('should order results by created_at descending', async () => {
+      await bandRepository.findAllByUserId(userId);
+
+      expect(queryBuilder.orderBy).toHaveBeenCalledWith(
+        'band.created_at',
+        'DESC',
+      );
+    });
+
+    it('should return the bands found by the query', async () => {
+      const bands = [{ id: 'band-1' }, { id: 'band-2' }];
+      queryBuilder.getMany.mockResolvedValueOnce(bands);
+
+      const result = await bandRepository.findAllByUserId(userId);
+
+      expect(result).toBe(bands);
+    });
+
+    it('should return an empty array when the user has no bands', async () => {
+      const result = await bandRepository.findAllByUserId(userId);
+
+      expect(result).toEqual([]);
     });
   });
 });
