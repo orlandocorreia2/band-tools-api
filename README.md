@@ -33,6 +33,10 @@ A **Band Tools API** é uma API REST construída com [NestJS](https://nestjs.com
 Recursos incluídos:
 
 - Endpoint de **health check** para monitoramento da aplicação
+- Cadastro de **usuários**, com senha protegida por hash `bcrypt`
+- **Autenticação** via JWT (`POST /auth/login`) e proteção de rotas com `JwtAuthGuard`
+- Cadastro de **bandas**, com o autor vinculado automaticamente como dono (`band_members`)
+- Cadastro de **músicas do repertório** de uma banda (`POST /bands/:id/song`), restrito a membros da banda
 - Documentação interativa via **Scalar UI** em `/openapi`
 - Validação de variáveis de ambiente na inicialização
 - Middleware global de **filtro de exceções** padronizadas
@@ -92,6 +96,23 @@ STAGE=development
 
 # Porta em que a API será iniciada
 PORT=3000
+
+# Banco de dados (PostgreSQL)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=band_tools
+DB_PASSWORD=change-me
+DB_NAME=band_tools_db
+DB_TYPE=postgres
+DB_SYNCHRONIZE=false
+DB_AUTO_LOAD_ENTITIES=true
+
+# Custo do hash bcrypt para senhas de usuário
+BCRYPT_SALT_ROUNDS=10
+
+# Autenticação JWT
+JWT_SECRET=change-me
+JWT_EXPIRES_IN=3600
 ```
 
 > **Nota:** `SERVICE_NAME` e `SERVICE_VERSION` são preenchidos automaticamente a partir do `package.json` durante a inicialização.
@@ -126,9 +147,13 @@ http://localhost:3000/openapi
 
 ### Endpoints disponíveis
 
-| Método | Rota      | Descrição                      |
-| ------ | --------- | ------------------------------ |
-| GET    | `/health` | Verifica o status da aplicação |
+| Método | Rota              | Autenticação | Descrição                                       |
+| ------ | ----------------- | ------------ | ------------------------------------------------ |
+| GET    | `/health`         | -            | Verifica o status da aplicação                  |
+| POST   | `/users`          | -            | Cadastra um novo usuário                        |
+| POST   | `/auth/login`     | -            | Autentica um usuário e retorna um JWT           |
+| POST   | `/bands`          | Bearer JWT   | Cadastra uma nova banda (o autor vira dono)     |
+| POST   | `/bands/:id/song` | Bearer JWT   | Cadastra uma música no repertório da banda      |
 
 #### Exemplo de resposta — `GET /health`
 
@@ -174,34 +199,55 @@ src/
 ├── main.ts                          # Ponto de entrada da aplicação
 ├── app.module.ts                    # Módulo raiz
 │
+├── domain/                          # Entidades e interfaces de repositório (sem dependência de framework)
+│   ├── entities/
+│   │   ├── user/, band/, band-member/, band-song/
+│   ├── repositories/                # Interfaces (IUserRepository, IBandRepository, ...)
+│   └── services/                    # Interfaces de serviços de domínio (ex.: IPasswordHasher)
+│
 ├── application/
-│   └── usecase/
-│       └── health-check/            # Caso de uso: health check
-│           ├── health-check.usecase.ts
-│           └── interfaces/
+│   └── usecase/                     # Casos de uso, um por diretório com sua interface
+│       ├── health-check/
+│       ├── user/                    # CreateUserUseCase
+│       ├── auth/                    # LoginUseCase
+│       ├── band/                    # CreateBandUseCase
+│       └── band-song/               # CreateBandSongUseCase
+│
+├── infrastructure/
+│   ├── entities/                    # TypeORM entities (suffixo *TypeormEntity)
+│   ├── repository/                  # Implementações de IUserRepository, IBandRepository, ...
+│   ├── services/                    # Implementações de serviços de domínio (ex.: BcryptPasswordHasher)
+│   └── typeorm/
+│       ├── data-source.ts, typeorm.module.ts
+│       └── migrations/              # Migrations versionadas do schema
 │
 ├── http/
-│   ├── http.module.ts               # Módulo HTTP
+│   ├── http.module.ts               # Módulo HTTP raiz
 │   ├── health-check/
-│   │   ├── health-check.controller.ts
-│   │   └── health-check-factory.module.ts
+│   ├── user/                        # POST /users
+│   ├── auth/                        # POST /auth/login
+│   ├── band/                        # POST /bands (+ decorators/)
+│   ├── band-song/                   # POST /bands/:id/song (+ decorators/)
 │   └── middlewares/
-│       ├── exception-filter.middleware.ts   # Filtro global de exceções
-│       └── trim-strings.middleware.ts       # Sanitização de strings
+│       ├── exception-filter.middleware.ts       # Filtro global de exceções
+│       ├── trim-strings.middleware.ts           # Sanitização de strings
+│       ├── jwt-auth.guard.ts                    # Guard de autenticação JWT
+│       └── auth-user-is-member-band.guard.ts    # Guard de vínculo usuário/banda
 │
 └── shared/
     ├── commons/
+    │   ├── dtos/                    # DTOs comuns (ex.: FindIdParamDto)
     │   ├── enums/                   # Enums compartilhados
     │   └── openapi.commons.ts       # Builder de documentação OpenAPI
     ├── communication/
-    │   └── dtos/                    # Data Transfer Objects
+    │   └── dtos/                    # Data Transfer Objects, por feature
     ├── config/
     │   ├── env-config.module.ts     # Módulo de configuração de ambiente
     │   ├── env-config.service.ts    # Serviço de acesso às variáveis
     │   └── env-config.validation.ts # Validação de variáveis de ambiente
     ├── exceptions/
     │   ├── base.exception.ts        # Exceção base
-    │   └── business.exception.ts   # Exceções de negócio (401, 400, 404...)
+    │   └── business.exception.ts   # Exceções de negócio (401, 403, 404, 409, 422...)
     ├── helpers/
     │   └── error.ts                 # Mensagens de erro padrão
     └── interfaces/
@@ -209,6 +255,7 @@ src/
 
 test/
 ├── unit/                            # Testes unitários (espelham src/)
+├── e2e/                             # Testes end-to-end (*.e2e-spec.ts)
 └── setEnvVars.js                    # Setup global dos testes
 ```
 
@@ -244,3 +291,7 @@ O projeto utiliza aliases de caminho configurados no `tsconfig.json` para evitar
 | `npm run test:cov`    | Executa testes com relatório de cobertura        |
 | `npm run test:watch`  | Executa testes em modo watch                     |
 | `npm run test:e2e`    | Executa testes end-to-end                        |
+| `npm run migration:run`      | Executa as migrations pendentes           |
+| `npm run migration:revert`   | Reverte a última migration executada      |
+| `npm run migration:generate` | Gera uma migration a partir das TypeORM entities (`-- --name=<name>`) |
+| `npm run docker:dev`  | Sobe o ambiente de desenvolvimento via Docker Compose |

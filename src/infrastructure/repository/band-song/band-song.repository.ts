@@ -1,0 +1,20 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { BandSongEntity } from '@domain/entities/band-song/band-song.entity';
+import { IBandSongRepository } from '@domain/repositories/band-song/band-song.repository.interface';
+import { BandSongTypeormEntity } from '@infrastructure/entities/band-song/band-song-typeorm.entity';
+
+@Injectable()
+export class BandSongRepository implements IBandSongRepository {
+  constructor(
+    @InjectRepository(BandSongTypeormEntity)
+    private readonly repository: Repository<BandSongTypeormEntity>,
+  ) {}
+
+  async save(bandSong: BandSongEntity): Promise<void> {
+    const entity = this.repository.create(bandSong);
+
+    await this.repository.save(entity);
+  }
+}

@@ -17,7 +17,11 @@
       "Bash(git stash *)",
       "Bash(git checkout *)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('progress:', d['progress']\\); print\\('state:', d['state']\\)\")",
-      "Bash(mv openspec/changes/user-authentication openspec/changes/archive/2026-07-21-user-authentication *)"
+      "Bash(mv openspec/changes/user-authentication openspec/changes/archive/2026-07-21-user-authentication *)",
+      "Bash(openspec new *)",
+      "Bash(sed -i 's/duration_in_seconds/duration/g' proposal.md tasks.md design.md specs/band-repertoire/spec.md)",
+      "Bash(sed -i -E 's/`key`/`tonality`/g; s/\\\\bkey\\\\b: string/tonality: string/g' proposal.md tasks.md design.md specs/band-repertoire/spec.md)",
+      "Bash(timeout 30 bash -c 'until docker exec band-tools-postgres pg_isready -U band_tools -d band_tools_db 2>/dev/null; do sleep 1; done')"
     ],
     "additionalDirectories": [
       "/home/orlando/projects/band_tools/backend/openspec/changes/user-authentication"

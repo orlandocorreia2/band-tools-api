@@ -17,12 +17,18 @@ import { DataSource } from 'typeorm';
 describe('BandRepository', () => {
   let bandRepository: BandRepository;
   let manager: { create: jest.Mock; save: jest.Mock };
-  let dataSource: jest.Mocked<Pick<DataSource, 'transaction'>>;
+  let bandTypeormRepository: { findOneBy: jest.Mock };
+  let dataSource: jest.Mocked<
+    Pick<DataSource, 'transaction' | 'getRepository'>
+  >;
 
   beforeEach(() => {
     manager = {
       create: jest.fn(),
       save: jest.fn().mockResolvedValue(undefined),
+    };
+    bandTypeormRepository = {
+      findOneBy: jest.fn().mockResolvedValue(null),
     };
     dataSource = {
       transaction: jest
@@ -30,6 +36,7 @@ describe('BandRepository', () => {
         .mockImplementation((work: (manager: unknown) => Promise<void>) =>
           work(manager),
         ),
+      getRepository: jest.fn().mockReturnValue(bandTypeormRepository),
     };
     bandRepository = new BandRepository(dataSource as unknown as DataSource);
   });
@@ -91,6 +98,26 @@ describe('BandRepository', () => {
       await expect(
         bandRepository.saveWithOwner(band, ownerUserId),
       ).rejects.toThrow('band member insert failed');
+    });
+  });
+
+  describe('findById', () => {
+    it('should return the band when found', async () => {
+      const found = { id: 'band-uuid', name: 'The Beatles' };
+      bandTypeormRepository.findOneBy.mockResolvedValueOnce(found);
+
+      const result = await bandRepository.findById('band-uuid');
+
+      expect(result).toBe(found);
+      expect(bandTypeormRepository.findOneBy).toHaveBeenCalledWith({
+        id: 'band-uuid',
+      });
+    });
+
+    it('should return null when not found', async () => {
+      const result = await bandRepository.findById('missing-uuid');
+
+      expect(result).toBeNull();
     });
   });
 });

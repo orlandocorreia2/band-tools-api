@@ -2,6 +2,21 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.6.0] - 2026-07-31
+
+#### Feat
+
+- Cadastro de música no repertório de uma banda (`POST /bands/:id/song`): campo `title` obrigatório e `tuning`, `tonality`, `bpm`, `duration`, `lyrics`, `notes` opcionais, persistidos na nova tabela `band_songs`
+- Migration `create-band-songs-table`: `band_id` como foreign key para `bands.id` (`ON DELETE CASCADE`) e índice dedicado em `band_id`
+- `BandSongEntity`, `IBandSongRepository`, `BandSongTypeormEntity` e `BandSongRepository` na camada de domínio/infraestrutura
+- `AuthUserIsMemberBandGuard`, aplicado em conjunto com `JwtAuthGuard`, responsável por validar nesta ordem: existência da banda (`IBandRepository.findById`, 404), existência do usuário autenticado (`IUserRepository.findBy`, 404) e vínculo de membership (`IBandMemberRepository.existsByBandAndUser`, 403), antes de liberar o cadastro
+- `IBandRepository` ganha `findById(id)`; `IBandMemberRepository` ganha `existsByBandAndUser(bandId, userId)`
+- Testes unitários com 100% de cobertura e testes e2e cobrindo cadastro com sucesso (somente obrigatório e completo), corpo malformado (400), campo obrigatório ausente/inválido (422), `id` de banda inválido (422), banda inexistente (404), usuário autenticado removido da base (404), usuário não membro da banda (403) e requisição sem token (401)
+
+#### Refactor
+
+- Decorators Swagger de `POST /bands` extraídos para `ApiCreateBand` (`src/http/band/decorators/`), seguindo o mesmo padrão adotado em `POST /bands/:id/song` (`ApiCreateBandSong`)
+
 ### [Version - 0.5.0] - 2026-07-21
 
 #### Feat

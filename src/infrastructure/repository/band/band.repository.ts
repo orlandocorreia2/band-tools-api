@@ -27,4 +27,12 @@ export class BandRepository implements IBandRepository {
       await manager.save(bandMemberEntity);
     });
   }
+
+  async findById(id: string): Promise<BandEntity | null> {
+    const found = await this.dataSource
+      .getRepository(BandTypeormEntity)
+      .findOneBy({ id });
+
+    return found as unknown as BandEntity | null;
+  }
 }

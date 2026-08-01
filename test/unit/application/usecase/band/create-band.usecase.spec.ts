@@ -30,6 +30,7 @@ describe('CreateBandUseCase', () => {
   beforeEach(() => {
     bandRepository = {
       saveWithOwner: jest.fn().mockResolvedValue(undefined),
+      findById: jest.fn().mockResolvedValue(null),
     };
     userRepository = {
       save: jest.fn().mockResolvedValue(undefined),

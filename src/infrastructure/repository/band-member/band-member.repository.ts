@@ -17,4 +17,8 @@ export class BandMemberRepository implements IBandMemberRepository {
 
     await this.repository.save(entity);
   }
+
+  async existsByBandAndUser(bandId: string, userId: string): Promise<boolean> {
+    return this.repository.existsBy({ band_id: bandId, user_id: userId });
+  }
 }

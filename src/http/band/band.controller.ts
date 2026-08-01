@@ -1,23 +1,10 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Inject,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Inject, Post, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateBandDto } from '@shared/communication/dtos/band/create-band.dto';
 import type { CreateBandUseCaseInterface } from '@usecase/band/interfaces/create-band.usecase.interface';
 import { JwtAuthGuard } from '@http/middlewares/jwt-auth.guard';
 import { BandFactoryModule } from './band-factory.module';
+import { ApiCreateBand } from './decorators/create-band.decorator';
 
 type AuthenticatedRequest = { user: { id: string } };
 
@@ -31,17 +18,8 @@ export class BandController {
     private readonly createBandUseCase: CreateBandUseCaseInterface,
   ) {}
 
+  @ApiCreateBand()
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Register a new band' })
-  @ApiResponse({ status: 201, description: 'Band created successfully' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({
-    status: 422,
-    description: 'Unprocessable Entity — validation failed',
-  })
-  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async create(
     @Body() dto: CreateBandDto,
     @Req() request: AuthenticatedRequest,
