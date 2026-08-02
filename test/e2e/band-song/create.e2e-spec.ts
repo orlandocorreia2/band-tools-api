@@ -54,7 +54,7 @@ const decodeUserIdFromToken = (token: string): string => {
   return decoded.sub;
 };
 
-describe('POST /bands/:id/song (e2e)', () => {
+describe('POST /bands/:id/songs (e2e)', () => {
   let app: INestApplication;
   let accessToken: string;
   let bandId: string;
@@ -129,7 +129,7 @@ describe('POST /bands/:id/song (e2e)', () => {
 
   it('should return 201 when payload contains only the required title field', async () => {
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ title: 'Smells Like Teen Spirit' })
       .expect(201);
@@ -137,7 +137,7 @@ describe('POST /bands/:id/song (e2e)', () => {
 
   it('should return 201 when payload is fully filled', async () => {
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send(validSongPayload())
       .expect(201);
@@ -145,7 +145,7 @@ describe('POST /bands/:id/song (e2e)', () => {
 
   it('should return 400 when the request body is malformed JSON', async () => {
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${accessToken}`)
       .set('Content-Type', 'application/json')
       .send('{"title":')
@@ -155,7 +155,7 @@ describe('POST /bands/:id/song (e2e)', () => {
   it('should return 422 when title is missing', async () => {
     const { title, ...rest } = validSongPayload();
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send(rest)
       .expect(422);
@@ -163,7 +163,7 @@ describe('POST /bands/:id/song (e2e)', () => {
 
   it('should return 422 when title is empty', async () => {
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ ...validSongPayload(), title: '' })
       .expect(422);
@@ -171,7 +171,7 @@ describe('POST /bands/:id/song (e2e)', () => {
 
   it('should return 422 when bpm is not a positive integer', async () => {
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ ...validSongPayload(), bpm: -1 })
       .expect(422);
@@ -179,7 +179,7 @@ describe('POST /bands/:id/song (e2e)', () => {
 
   it('should return 422 when duration is not a positive integer', async () => {
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ ...validSongPayload(), duration: -1 })
       .expect(422);
@@ -187,7 +187,7 @@ describe('POST /bands/:id/song (e2e)', () => {
 
   it('should return 422 when the band id in the route is not a valid UUID', async () => {
     await request(app.getHttpServer())
-      .post('/bands/not-a-uuid/song')
+      .post('/bands/not-a-uuid/songs')
       .set('Authorization', `Bearer ${accessToken}`)
       .send(validSongPayload())
       .expect(422);
@@ -195,7 +195,7 @@ describe('POST /bands/:id/song (e2e)', () => {
 
   it('should return 404 when the band does not exist', async () => {
     await request(app.getHttpServer())
-      .post('/bands/00000000-0000-7000-8000-000000000000/song')
+      .post('/bands/00000000-0000-7000-8000-000000000000/songs')
       .set('Authorization', `Bearer ${accessToken}`)
       .send(validSongPayload())
       .expect(404);
@@ -204,7 +204,7 @@ describe('POST /bands/:id/song (e2e)', () => {
   it('should return 404 when the authenticated user was deleted after the token was issued', async () => {
     const member = await registerAndLogin();
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${member.accessToken}`)
       .send(validSongPayload())
       .expect(403);
@@ -215,7 +215,7 @@ describe('POST /bands/:id/song (e2e)', () => {
       .delete({ id: member.userId });
 
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${member.accessToken}`)
       .send(validSongPayload())
       .expect(404);
@@ -225,7 +225,7 @@ describe('POST /bands/:id/song (e2e)', () => {
     const outsider = await registerAndLogin();
 
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${outsider.accessToken}`)
       .send(validSongPayload())
       .expect(403);
@@ -233,7 +233,7 @@ describe('POST /bands/:id/song (e2e)', () => {
 
   it('should return 401 when no token is provided', async () => {
     await request(app.getHttpServer())
-      .post(`/bands/${bandId}/song`)
+      .post(`/bands/${bandId}/songs`)
       .send(validSongPayload())
       .expect(401);
   });

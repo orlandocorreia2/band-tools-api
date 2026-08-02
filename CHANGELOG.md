@@ -2,6 +2,20 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.8.0] - 2026-08-02
+
+#### Feat
+
+- Listagem das músicas do repertório de uma banda (`GET /bands/:id/songs`), protegida por `JwtAuthGuard` + `AuthUserIsMemberBandGuard`: retorna, sem paginação, todas as músicas cadastradas para a banda informada
+- `IBandSongRepository` ganha `findAllByBandId(bandId)`, implementado em `BandSongRepository` filtrando por `band_id` e ordenado por `created_at ASC`
+- `ListBandSongsUseCase`, o primeiro caso de uso de leitura do domínio de repertório
+- `BandSongResponseDto` e `ListBandSongsResponseDto`, seguindo o mesmo padrão de envelope `{ "data": [...] }` já adotado em `GET /bands`
+- Testes unitários com 100% de cobertura e testes e2e cobrindo banda com músicas, repertório vazio, exclusão de músicas de outras bandas, banda inexistente (404), usuário autenticado removido da base (404), usuário não membro da banda (403) e requisição sem token (401)
+
+#### Breaking
+
+- Renomeado o endpoint de cadastro de música de `POST /bands/:id/song` (singular) para `POST /bands/:id/songs` (plural), unificando o nome do recurso com o novo endpoint de listagem; a rota antiga não existe mais e passa a retornar HTTP 404
+
 ### [Version - 0.7.0] - 2026-07-31
 
 #### Feat

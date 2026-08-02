@@ -15,12 +15,15 @@ import { Repository } from 'typeorm';
 
 describe('BandSongRepository', () => {
   let bandSongRepository: BandSongRepository;
-  let typeormRepo: jest.Mocked<Pick<Repository<any>, 'create' | 'save'>>;
+  let typeormRepo: jest.Mocked<
+    Pick<Repository<any>, 'create' | 'save' | 'find'>
+  >;
 
   beforeEach(() => {
     typeormRepo = {
       create: jest.fn(),
       save: jest.fn().mockResolvedValue(undefined),
+      find: jest.fn().mockResolvedValue([]),
     };
     bandSongRepository = new BandSongRepository(typeormRepo as any);
   });
@@ -53,5 +56,33 @@ describe('BandSongRepository', () => {
     await bandSongRepository.save(bandSong);
 
     expect(typeormRepo.save).toHaveBeenCalledWith(typeormEntity);
+  });
+
+  describe('findAllByBandId', () => {
+    const bandId = 'band-uuid';
+
+    it('should call repository.find filtering by band_id and ordering by created_at ASC', async () => {
+      await bandSongRepository.findAllByBandId(bandId);
+
+      expect(typeormRepo.find).toHaveBeenCalledWith({
+        where: { band_id: bandId },
+        order: { created_at: 'ASC' },
+      });
+    });
+
+    it('should return the songs found by the query', async () => {
+      const songs = [{ id: 'song-1' }, { id: 'song-2' }];
+      typeormRepo.find.mockResolvedValueOnce(songs);
+
+      const result = await bandSongRepository.findAllByBandId(bandId);
+
+      expect(result).toBe(songs);
+    });
+
+    it('should return an empty array when the band has no songs', async () => {
+      const result = await bandSongRepository.findAllByBandId(bandId);
+
+      expect(result).toEqual([]);
+    });
   });
 });

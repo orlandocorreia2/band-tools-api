@@ -1,8 +1,5 @@
-# band-repertoire Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change band-song-repertoire. Update Purpose after archive.
-## Requirements
 ### Requirement: Cadastro de música no repertório da banda
 O sistema DEVE (SHALL) permitir o cadastro de uma música no repertório de uma banda através de `POST /bands/:id/songs`, com os seguintes campos:
 
@@ -72,6 +69,8 @@ O sistema DEVE (SHALL) identificar o usuário autenticado a partir do JWT (via `
 - **WHEN** uma requisição `POST /bands/:id/songs` é enviada sem um JWT válido
 - **THEN** o sistema DEVE retornar HTTP 401
 
+## ADDED Requirements
+
 ### Requirement: Listagem de músicas do repertório da banda
 
 O sistema DEVE (SHALL) permitir que um usuário autenticado liste todas as músicas do repertório de uma banda através de `GET /bands/{bandId}/songs`, protegido por `JwtAuthGuard`.
@@ -118,4 +117,3 @@ A resposta NÃO DEVE (SHALL NOT) ser paginada: o sistema DEVE (SHALL) retornar o
 
 - **WHEN** uma requisição `GET /bands/{bandId}/songs` é enviada sem um JWT válido (ausente, malformado ou expirado)
 - **THEN** o sistema DEVE retornar HTTP status 401 e NÃO DEVE retornar nenhuma música
-</content>

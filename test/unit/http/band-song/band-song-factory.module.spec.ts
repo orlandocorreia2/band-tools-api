@@ -13,6 +13,12 @@ jest.mock('@usecase/band-song/create-band-song.usecase', () => ({
     .mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
+jest.mock('@usecase/band-song/list-band-songs.usecase', () => ({
+  ListBandSongsUseCase: jest
+    .fn()
+    .mockImplementation(() => ({ execute: jest.fn() })),
+}));
+
 jest.mock(
   '@infrastructure/entities/band-song/band-song-typeorm.entity',
   () => ({
@@ -26,6 +32,7 @@ jest.mock('@infrastructure/repository/band-song/band-song.repository', () => ({
 
 import { BandSongFactoryModule } from '@http/band-song/band-song-factory.module';
 import { CreateBandSongUseCase } from '@usecase/band-song/create-band-song.usecase';
+import { ListBandSongsUseCase } from '@usecase/band-song/list-band-songs.usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BandSongTypeormEntity } from '@infrastructure/entities/band-song/band-song-typeorm.entity';
 import { BandSongRepository } from '@infrastructure/repository/band-song/band-song.repository';
@@ -49,6 +56,15 @@ describe('BandSongFactoryModule', () => {
     expect(module.providers).toBeDefined();
     expect(module.exports).toContain(
       BandSongFactoryModule.CREATE_BAND_SONG_USE_CASE,
+    );
+    expect(module.exports).toContain(
+      BandSongFactoryModule.LIST_BAND_SONGS_USE_CASE,
+    );
+  });
+
+  it('should expose LIST_BAND_SONGS_USE_CASE token', () => {
+    expect(BandSongFactoryModule.LIST_BAND_SONGS_USE_CASE).toBe(
+      'ListBandSongsUseCase',
     );
   });
 
@@ -76,5 +92,17 @@ describe('BandSongFactoryModule', () => {
     factoryProvider.useFactory(mockBandSongRepo);
 
     expect(CreateBandSongUseCase).toHaveBeenCalledWith(mockBandSongRepo);
+  });
+
+  it('should wire ListBandSongsUseCase with BandSongRepository via useFactory', () => {
+    const module = BandSongFactoryModule.forRoot();
+    const factoryProvider = (module.providers as any[]).find(
+      (p) => p.provide === BandSongFactoryModule.LIST_BAND_SONGS_USE_CASE,
+    );
+    const mockBandSongRepo = { findAllByBandId: jest.fn() };
+
+    factoryProvider.useFactory(mockBandSongRepo);
+
+    expect(ListBandSongsUseCase).toHaveBeenCalledWith(mockBandSongRepo);
   });
 });

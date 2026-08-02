@@ -1,7 +1,10 @@
 import { BandSongController } from '@http/band-song/band-song.controller';
 import type { CreateBandSongUseCaseInterface } from '@usecase/band-song/interfaces/create-band-song.usecase.interface';
+import type { ListBandSongsUseCaseInterface } from '@usecase/band-song/interfaces/list-band-songs.usecase.interface';
 import { CreateBandSongDto } from '@shared/communication/dtos/band-song/create-band-song.dto';
+import { ListBandSongsResponseDto } from '@shared/communication/dtos/band-song/list-band-songs-response.dto';
 import { FindIdParamDto } from '@shared/commons/dtos/find-id-param.dto';
+import { BandSongEntity } from '@domain/entities/band-song/band-song.entity';
 
 const makeDto = (): CreateBandSongDto => ({
   title: 'Come As You Are',
@@ -9,32 +12,69 @@ const makeDto = (): CreateBandSongDto => ({
 
 const makeParams = (id = 'band-uuid'): FindIdParamDto => ({ id });
 
+const makeBandSong = (id: string): BandSongEntity =>
+  ({
+    id,
+    band_id: 'band-uuid',
+    title: 'Come As You Are',
+  }) as unknown as BandSongEntity;
+
 describe('BandSongController', () => {
   let controller: BandSongController;
-  let mockUseCase: jest.Mocked<CreateBandSongUseCaseInterface>;
+  let mockCreateUseCase: jest.Mocked<CreateBandSongUseCaseInterface>;
+  let mockListUseCase: jest.Mocked<ListBandSongsUseCaseInterface>;
 
   beforeEach(() => {
-    mockUseCase = { execute: jest.fn().mockResolvedValue(undefined) };
-    controller = new BandSongController(mockUseCase);
+    mockCreateUseCase = { execute: jest.fn().mockResolvedValue(undefined) };
+    mockListUseCase = { execute: jest.fn().mockResolvedValue([]) };
+    controller = new BandSongController(mockCreateUseCase, mockListUseCase);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should call useCase.execute with the params.id and dto', async () => {
-    const dto = makeDto();
-    const params = makeParams();
+  describe('create', () => {
+    it('should call useCase.execute with the params.id and dto', async () => {
+      const dto = makeDto();
+      const params = makeParams();
 
-    await controller.create(params, dto);
+      await controller.create(params, dto);
 
-    expect(mockUseCase.execute).toHaveBeenCalledTimes(1);
-    expect(mockUseCase.execute).toHaveBeenCalledWith(params.id, dto);
+      expect(mockCreateUseCase.execute).toHaveBeenCalledTimes(1);
+      expect(mockCreateUseCase.execute).toHaveBeenCalledWith(params.id, dto);
+    });
+
+    it('should return void (HTTP 201 with no body)', async () => {
+      const result = await controller.create(makeParams(), makeDto());
+
+      expect(result).toBeUndefined();
+    });
   });
 
-  it('should return void (HTTP 201 with no body)', async () => {
-    const result = await controller.create(makeParams(), makeDto());
+  describe('list', () => {
+    it('should call useCase.execute with the params.id', async () => {
+      const params = makeParams();
 
-    expect(result).toBeUndefined();
+      await controller.list(params);
+
+      expect(mockListUseCase.execute).toHaveBeenCalledTimes(1);
+      expect(mockListUseCase.execute).toHaveBeenCalledWith(params.id);
+    });
+
+    it('should return a ListBandSongsResponseDto whose data key holds the mapped songs', async () => {
+      const bandSongs = [makeBandSong('song-1'), makeBandSong('song-2')];
+      mockListUseCase.execute.mockResolvedValueOnce(bandSongs);
+
+      const result = await controller.list(makeParams());
+
+      expect(result).toEqual(ListBandSongsResponseDto.fromEntities(bandSongs));
+    });
+
+    it('should return an empty data array when the band has no songs', async () => {
+      const result = await controller.list(makeParams());
+
+      expect(result.data).toEqual([]);
+    });
   });
 });

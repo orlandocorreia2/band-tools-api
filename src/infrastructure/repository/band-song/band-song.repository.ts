@@ -17,4 +17,13 @@ export class BandSongRepository implements IBandSongRepository {
 
     await this.repository.save(entity);
   }
+
+  async findAllByBandId(bandId: string): Promise<BandSongEntity[]> {
+    const bandSongs = await this.repository.find({
+      where: { band_id: bandId },
+      order: { created_at: 'ASC' },
+    });
+
+    return bandSongs;
+  }
 }
