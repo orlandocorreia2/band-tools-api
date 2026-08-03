@@ -2,6 +2,17 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.9.0] - 2026-08-03
+
+#### Feat
+
+- Cadastro de setlist de uma banda (`POST /bands/:id/setlists`), protegido por `JwtAuthGuard` + `AuthUserIsMemberBandGuard`: recebe `name` e persiste o setlist na nova tabela `band_setlists`
+- Migration `create-band-setlists-table`: `band_id` como foreign key para `bands.id` (`ON DELETE CASCADE`) e índice dedicado em `band_id`
+- `BandSetlistEntity`, `IBandSetlistRepository`, `BandSetlistTypeormEntity` e `BandSetlistRepository` na camada de domínio/infraestrutura
+- `CreateBandSetlistUseCase`, `CreateBandSetlistDto` e `ApiCreateBandSetlist` (documentação Swagger), seguindo o mesmo padrão já adotado em `POST /bands/:id/songs`
+- Testes unitários com 100% de cobertura e testes e2e cobrindo cadastro com sucesso, corpo malformado (400), `name` ausente/vazio (422), `id` de banda inválido (422), banda inexistente (404), usuário autenticado removido da base (404), usuário não membro da banda (403) e requisição sem token (401)
+- A associação de músicas do repertório a um setlist (tabela de junção, ordenação) fica para uma mudança futura; este cadastro inicial contempla apenas o nome do setlist vinculado à banda
+
 ### [Version - 0.8.0] - 2026-08-02
 
 #### Feat

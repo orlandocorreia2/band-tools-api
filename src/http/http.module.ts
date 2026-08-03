@@ -7,6 +7,8 @@ import { BandController } from './band/band.controller';
 import { BandFactoryModule } from './band/band-factory.module';
 import { BandSongController } from './band-song/band-song.controller';
 import { BandSongFactoryModule } from './band-song/band-song-factory.module';
+import { BandSetlistController } from './band-setlist/band-setlist.controller';
+import { BandSetlistFactoryModule } from './band-setlist/band-setlist-factory.module';
 import { UserController } from './user/user.controller';
 import { UserFactoryModule } from './user/user-factory.module';
 import { AuthController } from './auth/auth.controller';
@@ -26,6 +28,7 @@ import { BandMemberTypeormEntity } from '@infrastructure/entities/band-member/ba
     HealthCheckFactoryModule.forRoot(),
     BandFactoryModule.forRoot(),
     BandSongFactoryModule.forRoot(),
+    BandSetlistFactoryModule.forRoot(),
     UserFactoryModule.forRoot(),
     AuthFactoryModule.forRoot(),
     JwtModule.registerAsync(jwtModuleAsyncOptions),
@@ -39,6 +42,7 @@ import { BandMemberTypeormEntity } from '@infrastructure/entities/band-member/ba
     HealthCheckController,
     BandController,
     BandSongController,
+    BandSetlistController,
     UserController,
     AuthController,
   ],
