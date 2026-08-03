@@ -13,6 +13,12 @@ jest.mock('@usecase/band-setlist/create-band-setlist.usecase', () => ({
     .mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
+jest.mock('@usecase/band-setlist/list-band-setlists.usecase', () => ({
+  ListBandSetlistsUseCase: jest
+    .fn()
+    .mockImplementation(() => ({ execute: jest.fn() })),
+}));
+
 jest.mock(
   '@infrastructure/entities/band-setlist/band-setlist-typeorm.entity',
   () => ({
@@ -29,6 +35,7 @@ jest.mock(
 
 import { BandSetlistFactoryModule } from '@http/band-setlist/band-setlist-factory.module';
 import { CreateBandSetlistUseCase } from '@usecase/band-setlist/create-band-setlist.usecase';
+import { ListBandSetlistsUseCase } from '@usecase/band-setlist/list-band-setlists.usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BandSetlistTypeormEntity } from '@infrastructure/entities/band-setlist/band-setlist-typeorm.entity';
 import { BandSetlistRepository } from '@infrastructure/repository/band-setlist/band-setlist.repository';
@@ -52,6 +59,15 @@ describe('BandSetlistFactoryModule', () => {
     expect(module.providers).toBeDefined();
     expect(module.exports).toContain(
       BandSetlistFactoryModule.CREATE_BAND_SETLIST_USE_CASE,
+    );
+    expect(module.exports).toContain(
+      BandSetlistFactoryModule.LIST_BAND_SETLISTS_USE_CASE,
+    );
+  });
+
+  it('should expose LIST_BAND_SETLISTS_USE_CASE token', () => {
+    expect(BandSetlistFactoryModule.LIST_BAND_SETLISTS_USE_CASE).toBe(
+      'ListBandSetlistsUseCase',
     );
   });
 
@@ -80,5 +96,17 @@ describe('BandSetlistFactoryModule', () => {
     factoryProvider.useFactory(mockBandSetlistRepo);
 
     expect(CreateBandSetlistUseCase).toHaveBeenCalledWith(mockBandSetlistRepo);
+  });
+
+  it('should wire ListBandSetlistsUseCase with BandSetlistRepository via useFactory', () => {
+    const module = BandSetlistFactoryModule.forRoot();
+    const factoryProvider = (module.providers as any[]).find(
+      (p) => p.provide === BandSetlistFactoryModule.LIST_BAND_SETLISTS_USE_CASE,
+    );
+    const mockBandSetlistRepo = { findAllByBandId: jest.fn() };
+
+    factoryProvider.useFactory(mockBandSetlistRepo);
+
+    expect(ListBandSetlistsUseCase).toHaveBeenCalledWith(mockBandSetlistRepo);
   });
 });

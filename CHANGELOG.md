@@ -2,6 +2,16 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.10.0] - 2026-08-03
+
+#### Feat
+
+- Listagem dos setlists de uma banda (`GET /bands/:id/setlists`), protegida por `JwtAuthGuard` + `AuthUserIsMemberBandGuard`: retorna, sem paginação, todos os setlists cadastrados para a banda informada
+- `IBandSetlistRepository` ganha `findAllByBandId(bandId)`, implementado em `BandSetlistRepository` filtrando por `band_id` e ordenado por `created_at ASC`
+- `ListBandSetlistsUseCase`, o primeiro caso de uso de leitura do domínio de setlists
+- `BandSetlistResponseDto` e `ListBandSetlistsResponseDto`, seguindo o mesmo padrão de envelope `{ "data": [...] }` já adotado em `GET /bands/:id/songs`
+- Testes unitários com 100% de cobertura e testes e2e cobrindo banda com setlists, listagem vazia, exclusão de setlists de outras bandas, banda inexistente (404), usuário autenticado removido da base (404), usuário não membro da banda (403) e requisição sem token (401)
+
 ### [Version - 0.9.0] - 2026-08-03
 
 #### Feat

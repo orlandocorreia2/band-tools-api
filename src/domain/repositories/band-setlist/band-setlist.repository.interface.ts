@@ -2,4 +2,5 @@ import { BandSetlistEntity } from '@domain/entities/band-setlist/band-setlist.en
 
 export interface IBandSetlistRepository {
   save(bandSetlist: BandSetlistEntity): Promise<void>;
+  findAllByBandId(bandId: string): Promise<BandSetlistEntity[]>;
 }
