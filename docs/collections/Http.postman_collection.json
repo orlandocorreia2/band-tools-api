@@ -43,48 +43,13 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/bands/019fba66-da0f-7bfd-b3e0-96e588f75d9b/songs",
+                  "raw": "{{baseUrl}}/bands/019fbdbe-1d83-7e6e-adea-05f478af1cc6/songs",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "bands",
-                    "019fba66-da0f-7bfd-b3e0-96e588f75d9b",
-                    "songs"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Index",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/bands/019fba66-da0f-7bfd-b3e0-96e588f75d9b/songs",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "bands",
-                    "019fba66-da0f-7bfd-b3e0-96e588f75d9b",
+                    "019fbdbe-1d83-7e6e-adea-05f478af1cc6",
                     "songs"
                   ]
                 }
@@ -119,7 +84,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"name\": \"Show de Sábado\"\r\n}",
+                  "raw": "{\r\n    \"name\": \"\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -134,6 +99,41 @@
                   "path": [
                     "bands",
                     "019fba66-da0f-7bfd-b3e0-96e588f75d9b",
+                    "setlists"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Index",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/bands/019fbdbe-1d83-7e6e-adea-05f478af1cc6/setlists",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bands",
+                    "019fbdbe-1d83-7e6e-adea-05f478af1cc6",
                     "setlists"
                   ]
                 }
