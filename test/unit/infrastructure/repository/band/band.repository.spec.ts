@@ -3,7 +3,7 @@ jest.mock('@infrastructure/entities/band/band-typeorm.entity', () => ({
 }));
 
 jest.mock(
-  '@infrastructure/entities/band-member/band-member-typeorm.entity',
+  '@infrastructure/entities/band/band-member-typeorm.entity',
   () => ({
     BandMemberTypeormEntity: class BandMemberTypeormEntity {},
   }),
@@ -11,7 +11,7 @@ jest.mock(
 
 import { BandRepository } from '@infrastructure/repository/band/band.repository';
 import { BandEntity } from '@domain/entities/band/band.entity';
-import { BandMemberEntity } from '@domain/entities/band-member/band-member.entity';
+import { BandMemberEntity } from '@domain/entities/band/band-member.entity';
 import { DataSource } from 'typeorm';
 
 describe('BandRepository', () => {

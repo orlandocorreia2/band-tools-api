@@ -2,6 +2,23 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.11.0] - 2026-08-03
+
+#### Feat
+
+- Associação de músicas do repertório a um setlist (`POST /bands/:id/setlists/:setlistId/songs`), protegida por `JwtAuthGuard` + `AuthUserIsMemberBandGuard`: recebe `bandSongId` (UUID v7 da música em `band_songs`) e `position`, persistindo o vínculo na nova tabela `band_setlist_songs`
+- Migration `create-band-setlist-songs-table`: `band_setlist_id` e `band_song_id` como foreign keys (`ON DELETE CASCADE`) para `band_setlists.id`/`band_songs.id`, com índice dedicado em `band_setlist_id`
+- Validação de que o setlist (`:setlistId`) e a música (`bandSongId`) existem e pertencem à banda (`:id`) informada na rota, retornando HTTP 404 em qualquer um dos dois casos, com novo método `findById` em `IBandSetlistRepository`/`IBandSongRepository`
+- Reposicionamento automático de `position`: quando o valor informado já está em uso por outro vínculo do mesmo setlist, o sistema ignora o valor enviado e persiste a música na última posição (`MAX(position) + 1`); sem colisão, a `position` informada é usada como enviada
+- A mesma música pode ser associada mais de uma vez ao mesmo setlist (ex.: bis) — sem validação de unicidade de `bandSongId`
+- `BandSetlistSongEntity`, `IBandSetlistSongRepository` (`save`, `findAllByBandSetlistId`), `BandSetlistSongTypeormEntity`, `BandSetlistSongRepository` e `AddSongToSetlistUseCase`, seguindo o mesmo padrão em camadas já adotado nos demais cadastros
+- Testes unitários com 100% de cobertura e testes e2e cobrindo cadastro com sucesso, corpo malformado (400), `bandSongId`/`position` ausentes ou inválidos (422), banda inexistente (404), usuário autenticado removido da base (404), usuário não membro da banda (403), requisição sem token (401), setlist/música inexistentes ou pertencentes a outra banda (404), duplicidade de música e colisão de `position`
+
+#### Refactor
+
+- Consolidadas as pastas `band-setlist/`, `band-song/` e `band-member/` dentro de uma única pasta `band/` em cada camada (`domain/entities`, `domain/repositories`, `infrastructure/entities`, `infrastructure/repository`, `application/usecase` — incluindo o barrel `interfaces/index.ts` unificado — `shared/communication/dtos` e `http`), já que banda, setlist, repertório de músicas e membros fazem parte do mesmo contexto de domínio; nomes de arquivo/classe permanecem os mesmos, apenas a localização física muda
+- Unificados os três factory modules HTTP (`BandFactoryModule`, `BandSetlistFactoryModule`, `BandSongFactoryModule`) em um único `BandFactoryModule`, que passa a expor todos os tokens de caso de uso de banda, setlist e repertório, com um único `TypeOrmModule.forFeature([...])` e um único `forRoot()`
+
 ### [Version - 0.10.0] - 2026-08-03
 
 #### Feat

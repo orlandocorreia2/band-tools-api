@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { BandRepository } from '@infrastructure/repository/band/band.repository';
 import { UserRepository } from '@infrastructure/repository/user/user.repository';
-import { BandMemberRepository } from '@infrastructure/repository/band-member/band-member.repository';
+import { BandMemberRepository } from '@infrastructure/repository/band/band-member.repository';
 import {
   ApplicationForbiddenException,
   ApplicationNotFoundException,

@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
 import { ExceptionFilterMiddleware } from '@http/middlewares/exception-filter.middleware';
-import { BandMemberTypeormEntity } from '@infrastructure/entities/band-member/band-member-typeorm.entity';
+import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-member-typeorm.entity';
 import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.entity';
 
 const uniqueEmail = () =>

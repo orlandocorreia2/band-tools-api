@@ -35,8 +35,10 @@ Recursos incluídos:
 - Endpoint de **health check** para monitoramento da aplicação
 - Cadastro de **usuários**, com senha protegida por hash `bcrypt`
 - **Autenticação** via JWT (`POST /auth/login`) e proteção de rotas com `JwtAuthGuard`
-- Cadastro de **bandas**, com o autor vinculado automaticamente como dono (`band_members`)
-- Cadastro de **músicas do repertório** de uma banda (`POST /bands/:id/song`), restrito a membros da banda
+- Cadastro e listagem de **bandas**, com o autor vinculado automaticamente como dono (`band_members`)
+- Cadastro e listagem de **músicas do repertório** de uma banda (`/bands/:id/songs`), restrito a membros da banda
+- Cadastro e listagem de **setlists** de uma banda (`/bands/:id/setlists`), restrito a membros da banda
+- Associação de músicas do repertório a um **setlist**, com posição (`POST /bands/:id/setlists/:setlistId/songs`)
 - Documentação interativa via **Scalar UI** em `/openapi`
 - Validação de variáveis de ambiente na inicialização
 - Middleware global de **filtro de exceções** padronizadas
@@ -147,13 +149,18 @@ http://localhost:3000/openapi
 
 ### Endpoints disponíveis
 
-| Método | Rota              | Autenticação | Descrição                                       |
-| ------ | ----------------- | ------------ | ------------------------------------------------ |
-| GET    | `/health`         | -            | Verifica o status da aplicação                  |
-| POST   | `/users`          | -            | Cadastra um novo usuário                        |
-| POST   | `/auth/login`     | -            | Autentica um usuário e retorna um JWT           |
-| POST   | `/bands`          | Bearer JWT   | Cadastra uma nova banda (o autor vira dono)     |
-| POST   | `/bands/:id/song` | Bearer JWT   | Cadastra uma música no repertório da banda      |
+| Método | Rota                                       | Autenticação | Descrição                                                |
+| ------ | ------------------------------------------- | ------------ | --------------------------------------------------------- |
+| GET    | `/health`                                   | -            | Verifica o status da aplicação                            |
+| POST   | `/users`                                    | -            | Cadastra um novo usuário                                  |
+| POST   | `/auth/login`                               | -            | Autentica um usuário e retorna um JWT                     |
+| POST   | `/bands`                                    | Bearer JWT   | Cadastra uma nova banda (o autor vira dono)                |
+| GET    | `/bands`                                    | Bearer JWT   | Lista as bandas do usuário autenticado                    |
+| POST   | `/bands/:id/songs`                          | Bearer JWT   | Cadastra uma música no repertório da banda                |
+| GET    | `/bands/:id/songs`                          | Bearer JWT   | Lista as músicas do repertório da banda                   |
+| POST   | `/bands/:id/setlists`                       | Bearer JWT   | Cadastra um setlist para a banda                           |
+| GET    | `/bands/:id/setlists`                       | Bearer JWT   | Lista os setlists da banda                                 |
+| POST   | `/bands/:id/setlists/:setlistId/songs`      | Bearer JWT   | Associa uma música do repertório a um setlist, com posição |
 
 #### Exemplo de resposta — `GET /health`
 
@@ -201,8 +208,9 @@ src/
 │
 ├── domain/                          # Entidades e interfaces de repositório (sem dependência de framework)
 │   ├── entities/
-│   │   ├── user/, band/, band-member/, band-song/
-│   ├── repositories/                # Interfaces (IUserRepository, IBandRepository, ...)
+│   │   ├── user/
+│   │   └── band/                    # BandEntity, BandMemberEntity, BandSetlistEntity, BandSetlistSongEntity, BandSongEntity
+│   ├── repositories/                # Interfaces (IUserRepository, IBandRepository, IBandSetlistRepository, ...)
 │   └── services/                    # Interfaces de serviços de domínio (ex.: IPasswordHasher)
 │
 ├── application/
@@ -210,11 +218,10 @@ src/
 │       ├── health-check/
 │       ├── user/                    # CreateUserUseCase
 │       ├── auth/                    # LoginUseCase
-│       ├── band/                    # CreateBandUseCase
-│       └── band-song/               # CreateBandSongUseCase
+│       └── band/                    # CreateBandUseCase, CreateBandSongUseCase, CreateBandSetlistUseCase, AddSongToSetlistUseCase, ...
 │
 ├── infrastructure/
-│   ├── entities/                    # TypeORM entities (suffixo *TypeormEntity)
+│   ├── entities/                    # TypeORM entities (suffixo *TypeormEntity), agrupadas do mesmo jeito que domain/entities
 │   ├── repository/                  # Implementações de IUserRepository, IBandRepository, ...
 │   ├── services/                    # Implementações de serviços de domínio (ex.: BcryptPasswordHasher)
 │   └── typeorm/
@@ -226,8 +233,7 @@ src/
 │   ├── health-check/
 │   ├── user/                        # POST /users
 │   ├── auth/                        # POST /auth/login
-│   ├── band/                        # POST /bands (+ decorators/)
-│   ├── band-song/                   # POST /bands/:id/song (+ decorators/)
+│   ├── band/                        # bands/setlists/repertório: BandFactoryModule único + controllers (band, band-song, band-setlist, band-setlist-song) e decorators/
 │   └── middlewares/
 │       ├── exception-filter.middleware.ts       # Filtro global de exceções
 │       ├── trim-strings.middleware.ts           # Sanitização de strings

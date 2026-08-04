@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
 import { ExceptionFilterMiddleware } from '@http/middlewares/exception-filter.middleware';
-import { BandMemberTypeormEntity } from '@infrastructure/entities/band-member/band-member-typeorm.entity';
+import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-member-typeorm.entity';
 
 const uniqueEmail = (label: string) =>
   `band.list.${label}.${Date.now()}.${Math.random().toString(36).slice(2)}@example.com`;
