@@ -43,6 +43,7 @@ describe('AddSongToSetlistUseCase', () => {
       save: jest.fn().mockResolvedValue(undefined),
       findAllByBandId: jest.fn().mockResolvedValue([]),
       findById: jest.fn().mockResolvedValue(makeSong()),
+      findAllByIds: jest.fn().mockResolvedValue([]),
     };
     useCase = new AddSongToSetlistUseCase(
       bandSetlistSongRepository,

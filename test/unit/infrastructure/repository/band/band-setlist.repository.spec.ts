@@ -2,12 +2,9 @@ jest.mock('@nestjs/typeorm', () => ({
   InjectRepository: () => () => {},
 }));
 
-jest.mock(
-  '@infrastructure/entities/band/band-setlist-typeorm.entity',
-  () => ({
-    BandSetlistTypeormEntity: class BandSetlistTypeormEntity {},
-  }),
-);
+jest.mock('@infrastructure/entities/band/band-setlist-typeorm.entity', () => ({
+  BandSetlistTypeormEntity: class BandSetlistTypeormEntity {},
+}));
 
 import { BandSetlistRepository } from '@infrastructure/repository/band/band-setlist.repository';
 import { BandSetlistEntity } from '@domain/entities/band/band-setlist.entity';

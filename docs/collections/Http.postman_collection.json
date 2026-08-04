@@ -43,13 +43,13 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/bands/019fbdbe-1d83-7e6e-adea-05f478af1cc6/songs",
+                  "raw": "{{baseUrl}}/bands/{{bandId}}/songs",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "bands",
-                    "019fbdbe-1d83-7e6e-adea-05f478af1cc6",
+                    "{{bandId}}",
                     "songs"
                   ]
                 }
@@ -78,13 +78,13 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/bands/019fbdbe-1d83-7e6e-adea-05f478af1cc6/songs",
+                  "raw": "{{baseUrl}}/bands/{{bandId}}/songs",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "bands",
-                    "019fbdbe-1d83-7e6e-adea-05f478af1cc6",
+                    "{{bandId}}",
                     "songs"
                   ]
                 }
@@ -96,6 +96,106 @@
         {
           "name": "Setlist",
           "item": [
+            {
+              "name": "Song",
+              "item": [
+                {
+                  "name": "Create",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{accessToken}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"bandSongId\": \"019fca46-5777-740f-9efd-69108b042b62\",\r\n    \"position\": 2\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/bands/{{bandId}}/setlists/019fca46-b387-7dd5-a41f-e74e59fac861/songs",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "bands",
+                        "{{bandId}}",
+                        "setlists",
+                        "019fca46-b387-7dd5-a41f-e74e59fac861",
+                        "songs"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Index",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{accessToken}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"bandSongId\": \"019fca46-5777-740f-9efd-69108b042b62\",\r\n    \"position\": 1\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/bands/{{bandId}}/setlists/019fca46-b387-7dd5-a41f-e74e59fac861/songs",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "bands",
+                        "{{bandId}}",
+                        "setlists",
+                        "019fca46-b387-7dd5-a41f-e74e59fac861",
+                        "songs"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
             {
               "name": "Create",
               "request": {
@@ -119,7 +219,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"name\": \"\"\r\n}",
+                  "raw": "{\r\n    \"name\": \"Nome do Show\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -127,13 +227,13 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/bands/019fba66-da0f-7bfd-b3e0-96e588f75d9b/setlists",
+                  "raw": "{{baseUrl}}/bands/{{bandId}}/setlists",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "bands",
-                    "019fba66-da0f-7bfd-b3e0-96e588f75d9b",
+                    "{{bandId}}",
                     "setlists"
                   ]
                 }
@@ -174,48 +274,13 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/bands/019fbdbe-1d83-7e6e-adea-05f478af1cc6/setlists",
+                  "raw": "{{baseUrl}}/bands/{{bandId}}/setlists",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "bands",
-                    "019fbdbe-1d83-7e6e-adea-05f478af1cc6",
-                    "setlists"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Index",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/bands/019fbdbe-1d83-7e6e-adea-05f478af1cc6/setlists",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "bands",
-                    "019fbdbe-1d83-7e6e-adea-05f478af1cc6",
+                    "{{bandId}}",
                     "setlists"
                   ]
                 }

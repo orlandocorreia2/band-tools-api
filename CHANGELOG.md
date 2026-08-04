@@ -2,6 +2,21 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.12.0] - 2026-08-03
+
+#### Feat
+
+- Listagem das músicas de um setlist (`GET /bands/:id/setlists/:setlistId/songs`), protegida por `JwtAuthGuard` + `AuthUserIsMemberBandGuard`: retorna, sem paginação, os vínculos do setlist ordenados por `position` ascendente
+- Validação de que o setlist (`:setlistId`) existe e pertence à banda (`:id`) antes de listar, reaproveitando o mesmo padrão de verificação já usado em `AddSongToSetlistUseCase` (HTTP 404 quando inexistente ou pertencente a outra banda)
+- `IBandSongRepository` ganha `findAllByIds(ids)`, implementado via `In(ids)` para buscar em uma única consulta os nomes das músicas do setlist, evitando N+1
+- `ListSetlistSongsUseCase`, o primeiro caso de uso do domínio de bandas a compor dados de duas entidades (`BandSetlistSongEntity` + `BandSongEntity`) em uma única resposta
+- Resposta em envelope `{ "data": [...] }` com um objeto plano por item: `id` (do vínculo em `band_setlist_songs`), `band_setlist_id`, `band_song_id`, `position`, `title` (nome da música) e `created_at`/`updated_at` do vínculo
+- Testes unitários com 100% de cobertura e testes e2e cobrindo listagem ordenada por `position`, setlist sem músicas, setlist inexistente (404), setlist pertencente a outra banda (404), banda inexistente (404), usuário autenticado removido da base (404), usuário não membro da banda (403) e requisição sem token (401)
+
+#### Refactor
+
+- `BandSongController`, `BandSetlistController` e `BandSetlistSongController` passam a seguir o padrão de resource controller: o prefixo completo do recurso (`bands/:id/songs`, `bands/:id/setlists`, `bands/:id/setlists/:setlistId/songs`) migra para `@Controller()`, e os handlers usam `@Get()`/`@Post()` sem repetir o caminho
+
 ### [Version - 0.11.0] - 2026-08-03
 
 #### Feat

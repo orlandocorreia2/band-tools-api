@@ -21,7 +21,7 @@ import { ApiListBandSetlists } from './decorators/list-band-setlists.decorator';
 
 @ApiTags('bands')
 @ApiBearerAuth()
-@Controller('bands')
+@Controller('bands/:id/setlists')
 @UseGuards(JwtAuthGuard, AuthUserIsMemberBandGuard)
 export class BandSetlistController {
   constructor(
@@ -32,7 +32,7 @@ export class BandSetlistController {
   ) {}
 
   @ApiCreateBandSetlist()
-  @Post(':id/setlists')
+  @Post()
   async create(
     @Param() params: FindIdParamDto,
     @Body() dto: CreateBandSetlistDto,
@@ -41,7 +41,7 @@ export class BandSetlistController {
   }
 
   @ApiListBandSetlists()
-  @Get(':id/setlists')
+  @Get()
   async list(
     @Param() params: FindIdParamDto,
   ): Promise<ListBandSetlistsResponseDto> {

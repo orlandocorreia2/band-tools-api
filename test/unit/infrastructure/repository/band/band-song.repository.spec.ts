@@ -2,21 +2,18 @@ jest.mock('@nestjs/typeorm', () => ({
   InjectRepository: () => () => {},
 }));
 
-jest.mock(
-  '@infrastructure/entities/band/band-song-typeorm.entity',
-  () => ({
-    BandSongTypeormEntity: class BandSongTypeormEntity {},
-  }),
-);
+jest.mock('@infrastructure/entities/band/band-song-typeorm.entity', () => ({
+  BandSongTypeormEntity: class BandSongTypeormEntity {},
+}));
 
 import { BandSongRepository } from '@infrastructure/repository/band/band-song.repository';
 import { BandSongEntity } from '@domain/entities/band/band-song.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 describe('BandSongRepository', () => {
   let bandSongRepository: BandSongRepository;
   let typeormRepo: jest.Mocked<
-    Pick<Repository<any>, 'create' | 'save' | 'find' | 'findOneBy'>
+    Pick<Repository<any>, 'create' | 'save' | 'find' | 'findOneBy' | 'findBy'>
   >;
 
   beforeEach(() => {
@@ -25,6 +22,7 @@ describe('BandSongRepository', () => {
       save: jest.fn().mockResolvedValue(undefined),
       find: jest.fn().mockResolvedValue([]),
       findOneBy: jest.fn(),
+      findBy: jest.fn().mockResolvedValue([]),
     };
     bandSongRepository = new BandSongRepository(typeormRepo as any);
   });
@@ -104,6 +102,36 @@ describe('BandSongRepository', () => {
       const result = await bandSongRepository.findById('missing-uuid');
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('findAllByIds', () => {
+    it('should call repository.findBy with an In operator built from the given ids', async () => {
+      const ids = ['song-1', 'song-2'];
+
+      await bandSongRepository.findAllByIds(ids);
+
+      expect(typeormRepo.findBy).toHaveBeenCalledWith({
+        id: In(ids),
+      });
+    });
+
+    it('should return the songs found by the query', async () => {
+      const songs = [{ id: 'song-1' }, { id: 'song-2' }];
+      typeormRepo.findBy.mockResolvedValueOnce(songs);
+
+      const result = await bandSongRepository.findAllByIds([
+        'song-1',
+        'song-2',
+      ]);
+
+      expect(result).toBe(songs);
+    });
+
+    it('should return an empty array when no songs match the given ids', async () => {
+      const result = await bandSongRepository.findAllByIds([]);
+
+      expect(result).toEqual([]);
     });
   });
 });

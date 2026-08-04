@@ -5,6 +5,7 @@ import { ListBandsByUserUseCase } from '@usecase/band/list-bands-by-user.usecase
 import { CreateBandSetlistUseCase } from '@usecase/band/create-band-setlist.usecase';
 import { ListBandSetlistsUseCase } from '@usecase/band/list-band-setlists.usecase';
 import { AddSongToSetlistUseCase } from '@usecase/band/add-song-to-setlist.usecase';
+import { ListSetlistSongsUseCase } from '@usecase/band/list-setlist-songs.usecase';
 import { CreateBandSongUseCase } from '@usecase/band/create-band-song.usecase';
 import { ListBandSongsUseCase } from '@usecase/band/list-band-songs.usecase';
 import { BandRepository } from '@infrastructure/repository/band/band.repository';
@@ -27,6 +28,7 @@ export class BandFactoryModule {
   static readonly CREATE_BAND_SETLIST_USE_CASE = 'CreateBandSetlistUseCase';
   static readonly LIST_BAND_SETLISTS_USE_CASE = 'ListBandSetlistsUseCase';
   static readonly ADD_SONG_TO_SETLIST_USE_CASE = 'AddSongToSetlistUseCase';
+  static readonly LIST_SETLIST_SONGS_USE_CASE = 'ListSetlistSongsUseCase';
   static readonly CREATE_BAND_SONG_USE_CASE = 'CreateBandSongUseCase';
   static readonly LIST_BAND_SONGS_USE_CASE = 'ListBandSongsUseCase';
 
@@ -95,6 +97,24 @@ export class BandFactoryModule {
             ),
         },
         {
+          provide: BandFactoryModule.LIST_SETLIST_SONGS_USE_CASE,
+          inject: [
+            BandSetlistSongRepository,
+            BandSetlistRepository,
+            BandSongRepository,
+          ],
+          useFactory: (
+            bandSetlistSongRepository: BandSetlistSongRepository,
+            bandSetlistRepository: BandSetlistRepository,
+            bandSongRepository: BandSongRepository,
+          ) =>
+            new ListSetlistSongsUseCase(
+              bandSetlistSongRepository,
+              bandSetlistRepository,
+              bandSongRepository,
+            ),
+        },
+        {
           provide: BandFactoryModule.CREATE_BAND_SONG_USE_CASE,
           inject: [BandSongRepository],
           useFactory: (bandSongRepository: BandSongRepository) =>
@@ -113,6 +133,7 @@ export class BandFactoryModule {
         BandFactoryModule.CREATE_BAND_SETLIST_USE_CASE,
         BandFactoryModule.LIST_BAND_SETLISTS_USE_CASE,
         BandFactoryModule.ADD_SONG_TO_SETLIST_USE_CASE,
+        BandFactoryModule.LIST_SETLIST_SONGS_USE_CASE,
         BandFactoryModule.CREATE_BAND_SONG_USE_CASE,
         BandFactoryModule.LIST_BAND_SONGS_USE_CASE,
       ],

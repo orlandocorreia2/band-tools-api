@@ -4,4 +4,5 @@ export interface IBandSongRepository {
   save(bandSong: BandSongEntity): Promise<void>;
   findAllByBandId(bandId: string): Promise<BandSongEntity[]>;
   findById(id: string): Promise<BandSongEntity | null>;
+  findAllByIds(ids: string[]): Promise<BandSongEntity[]>;
 }

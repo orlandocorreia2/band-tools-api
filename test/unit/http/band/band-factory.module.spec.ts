@@ -37,6 +37,12 @@ jest.mock('@usecase/band/add-song-to-setlist.usecase', () => ({
     .mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
+jest.mock('@usecase/band/list-setlist-songs.usecase', () => ({
+  ListSetlistSongsUseCase: jest
+    .fn()
+    .mockImplementation(() => ({ execute: jest.fn() })),
+}));
+
 jest.mock('@usecase/band/create-band-song.usecase', () => ({
   CreateBandSongUseCase: jest
     .fn()
@@ -53,12 +59,9 @@ jest.mock('@infrastructure/entities/band/band-typeorm.entity', () => ({
   BandTypeormEntity: class BandTypeormEntity {},
 }));
 
-jest.mock(
-  '@infrastructure/entities/band/band-member-typeorm.entity',
-  () => ({
-    BandMemberTypeormEntity: class BandMemberTypeormEntity {},
-  }),
-);
+jest.mock('@infrastructure/entities/band/band-member-typeorm.entity', () => ({
+  BandMemberTypeormEntity: class BandMemberTypeormEntity {},
+}));
 
 jest.mock('@infrastructure/entities/user/user-typeorm.entity', () => ({
   UserTypeormEntity: class UserTypeormEntity {},
@@ -83,12 +86,9 @@ jest.mock('@infrastructure/repository/band/band.repository', () => ({
   BandRepository: class BandRepository {},
 }));
 
-jest.mock(
-  '@infrastructure/repository/band/band-member.repository',
-  () => ({
-    BandMemberRepository: class BandMemberRepository {},
-  }),
-);
+jest.mock('@infrastructure/repository/band/band-member.repository', () => ({
+  BandMemberRepository: class BandMemberRepository {},
+}));
 
 jest.mock('@infrastructure/repository/user/user.repository', () => ({
   UserRepository: class UserRepository {},
@@ -115,6 +115,7 @@ import { ListBandsByUserUseCase } from '@usecase/band/list-bands-by-user.usecase
 import { CreateBandSetlistUseCase } from '@usecase/band/create-band-setlist.usecase';
 import { ListBandSetlistsUseCase } from '@usecase/band/list-band-setlists.usecase';
 import { AddSongToSetlistUseCase } from '@usecase/band/add-song-to-setlist.usecase';
+import { ListSetlistSongsUseCase } from '@usecase/band/list-setlist-songs.usecase';
 import { CreateBandSongUseCase } from '@usecase/band/create-band-song.usecase';
 import { ListBandSongsUseCase } from '@usecase/band/list-band-songs.usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -164,6 +165,12 @@ describe('BandFactoryModule', () => {
     );
   });
 
+  it('should expose LIST_SETLIST_SONGS_USE_CASE token', () => {
+    expect(BandFactoryModule.LIST_SETLIST_SONGS_USE_CASE).toBe(
+      'ListSetlistSongsUseCase',
+    );
+  });
+
   it('should expose CREATE_BAND_SONG_USE_CASE token', () => {
     expect(BandFactoryModule.CREATE_BAND_SONG_USE_CASE).toBe(
       'CreateBandSongUseCase',
@@ -189,6 +196,7 @@ describe('BandFactoryModule', () => {
         BandFactoryModule.CREATE_BAND_SETLIST_USE_CASE,
         BandFactoryModule.LIST_BAND_SETLISTS_USE_CASE,
         BandFactoryModule.ADD_SONG_TO_SETLIST_USE_CASE,
+        BandFactoryModule.LIST_SETLIST_SONGS_USE_CASE,
         BandFactoryModule.CREATE_BAND_SONG_USE_CASE,
         BandFactoryModule.LIST_BAND_SONGS_USE_CASE,
       ]),
@@ -287,6 +295,28 @@ describe('BandFactoryModule', () => {
     );
 
     expect(AddSongToSetlistUseCase).toHaveBeenCalledWith(
+      mockBandSetlistSongRepo,
+      mockBandSetlistRepo,
+      mockBandSongRepo,
+    );
+  });
+
+  it('should wire ListSetlistSongsUseCase with BandSetlistSongRepository, BandSetlistRepository and BandSongRepository via useFactory', () => {
+    const module = BandFactoryModule.forRoot();
+    const factoryProvider = (module.providers as any[]).find(
+      (p) => p.provide === BandFactoryModule.LIST_SETLIST_SONGS_USE_CASE,
+    );
+    const mockBandSetlistSongRepo = { findAllByBandSetlistId: jest.fn() };
+    const mockBandSetlistRepo = { findById: jest.fn() };
+    const mockBandSongRepo = { findAllByIds: jest.fn() };
+
+    factoryProvider.useFactory(
+      mockBandSetlistSongRepo,
+      mockBandSetlistRepo,
+      mockBandSongRepo,
+    );
+
+    expect(ListSetlistSongsUseCase).toHaveBeenCalledWith(
       mockBandSetlistSongRepo,
       mockBandSetlistRepo,
       mockBandSongRepo,

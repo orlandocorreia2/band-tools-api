@@ -19,6 +19,7 @@ describe('CreateBandSongUseCase', () => {
       save: jest.fn().mockResolvedValue(undefined),
       findAllByBandId: jest.fn().mockResolvedValue([]),
       findById: jest.fn().mockResolvedValue(null),
+      findAllByIds: jest.fn().mockResolvedValue([]),
     };
     useCase = new CreateBandSongUseCase(bandSongRepository);
   });

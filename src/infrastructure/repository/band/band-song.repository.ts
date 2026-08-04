@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { BandSongEntity } from '@domain/entities/band/band-song.entity';
 import { IBandSongRepository } from '@domain/repositories/band/band-song.repository.interface';
 import { BandSongTypeormEntity } from '@infrastructure/entities/band/band-song-typeorm.entity';
@@ -31,5 +31,11 @@ export class BandSongRepository implements IBandSongRepository {
     const found = await this.repository.findOneBy({ id });
 
     return found;
+  }
+
+  async findAllByIds(ids: string[]): Promise<BandSongEntity[]> {
+    const bandSongs = await this.repository.findBy({ id: In(ids) });
+
+    return bandSongs;
   }
 }

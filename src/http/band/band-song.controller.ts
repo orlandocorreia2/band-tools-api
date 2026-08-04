@@ -21,7 +21,7 @@ import { ApiListBandSongs } from './decorators/list-band-songs.decorator';
 
 @ApiTags('bands')
 @ApiBearerAuth()
-@Controller('bands')
+@Controller('bands/:id/songs')
 @UseGuards(JwtAuthGuard, AuthUserIsMemberBandGuard)
 export class BandSongController {
   constructor(
@@ -32,7 +32,7 @@ export class BandSongController {
   ) {}
 
   @ApiCreateBandSong()
-  @Post(':id/songs')
+  @Post()
   async create(
     @Param() params: FindIdParamDto,
     @Body() dto: CreateBandSongDto,
@@ -41,7 +41,7 @@ export class BandSongController {
   }
 
   @ApiListBandSongs()
-  @Get(':id/songs')
+  @Get()
   async list(
     @Param() params: FindIdParamDto,
   ): Promise<ListBandSongsResponseDto> {

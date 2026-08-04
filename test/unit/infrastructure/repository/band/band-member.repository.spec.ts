@@ -2,12 +2,9 @@ jest.mock('@nestjs/typeorm', () => ({
   InjectRepository: () => () => {},
 }));
 
-jest.mock(
-  '@infrastructure/entities/band/band-member-typeorm.entity',
-  () => ({
-    BandMemberTypeormEntity: class BandMemberTypeormEntity {},
-  }),
-);
+jest.mock('@infrastructure/entities/band/band-member-typeorm.entity', () => ({
+  BandMemberTypeormEntity: class BandMemberTypeormEntity {},
+}));
 
 import { BandMemberRepository } from '@infrastructure/repository/band/band-member.repository';
 import { BandMemberEntity } from '@domain/entities/band/band-member.entity';
