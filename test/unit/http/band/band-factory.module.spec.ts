@@ -55,6 +55,12 @@ jest.mock('@usecase/band/list-band-songs.usecase', () => ({
     .mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
+jest.mock('@usecase/band/create-band-booking.usecase', () => ({
+  CreateBandBookingUseCase: jest
+    .fn()
+    .mockImplementation(() => ({ execute: jest.fn() })),
+}));
+
 jest.mock('@infrastructure/entities/band/band-typeorm.entity', () => ({
   BandTypeormEntity: class BandTypeormEntity {},
 }));
@@ -80,6 +86,10 @@ jest.mock(
 
 jest.mock('@infrastructure/entities/band/band-song-typeorm.entity', () => ({
   BandSongTypeormEntity: class BandSongTypeormEntity {},
+}));
+
+jest.mock('@infrastructure/entities/band/band-booking-typeorm.entity', () => ({
+  BandBookingTypeormEntity: class BandBookingTypeormEntity {},
 }));
 
 jest.mock('@infrastructure/repository/band/band.repository', () => ({
@@ -109,6 +119,10 @@ jest.mock('@infrastructure/repository/band/band-song.repository', () => ({
   BandSongRepository: class BandSongRepository {},
 }));
 
+jest.mock('@infrastructure/repository/band/band-booking.repository', () => ({
+  BandBookingRepository: class BandBookingRepository {},
+}));
+
 import { BandFactoryModule } from '@http/band/band-factory.module';
 import { CreateBandUseCase } from '@usecase/band/create-band.usecase';
 import { ListBandsByUserUseCase } from '@usecase/band/list-bands-by-user.usecase';
@@ -118,6 +132,7 @@ import { AddSongToSetlistUseCase } from '@usecase/band/add-song-to-setlist.useca
 import { ListSetlistSongsUseCase } from '@usecase/band/list-setlist-songs.usecase';
 import { CreateBandSongUseCase } from '@usecase/band/create-band-song.usecase';
 import { ListBandSongsUseCase } from '@usecase/band/list-band-songs.usecase';
+import { CreateBandBookingUseCase } from '@usecase/band/create-band-booking.usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BandTypeormEntity } from '@infrastructure/entities/band/band-typeorm.entity';
 import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-member-typeorm.entity';
@@ -125,11 +140,13 @@ import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.en
 import { BandSetlistTypeormEntity } from '@infrastructure/entities/band/band-setlist-typeorm.entity';
 import { BandSetlistSongTypeormEntity } from '@infrastructure/entities/band/band-setlist-song-typeorm.entity';
 import { BandSongTypeormEntity } from '@infrastructure/entities/band/band-song-typeorm.entity';
+import { BandBookingTypeormEntity } from '@infrastructure/entities/band/band-booking-typeorm.entity';
 import { BandMemberRepository } from '@infrastructure/repository/band/band-member.repository';
 import { UserRepository } from '@infrastructure/repository/user/user.repository';
 import { BandSetlistRepository } from '@infrastructure/repository/band/band-setlist.repository';
 import { BandSetlistSongRepository } from '@infrastructure/repository/band/band-setlist-song.repository';
 import { BandSongRepository } from '@infrastructure/repository/band/band-song.repository';
+import { BandBookingRepository } from '@infrastructure/repository/band/band-booking.repository';
 import type { BandRepository } from '@infrastructure/repository/band/band.repository';
 
 describe('BandFactoryModule', () => {
@@ -183,6 +200,12 @@ describe('BandFactoryModule', () => {
     );
   });
 
+  it('should expose CREATE_BAND_BOOKING_USE_CASE token', () => {
+    expect(BandFactoryModule.CREATE_BAND_BOOKING_USE_CASE).toBe(
+      'CreateBandBookingUseCase',
+    );
+  });
+
   it('should return a DynamicModule from forRoot()', () => {
     const module = BandFactoryModule.forRoot();
 
@@ -199,6 +222,7 @@ describe('BandFactoryModule', () => {
         BandFactoryModule.LIST_SETLIST_SONGS_USE_CASE,
         BandFactoryModule.CREATE_BAND_SONG_USE_CASE,
         BandFactoryModule.LIST_BAND_SONGS_USE_CASE,
+        BandFactoryModule.CREATE_BAND_BOOKING_USE_CASE,
       ]),
     );
   });
@@ -213,6 +237,7 @@ describe('BandFactoryModule', () => {
       BandSetlistTypeormEntity,
       BandSetlistSongTypeormEntity,
       BandSongTypeormEntity,
+      BandBookingTypeormEntity,
     ]);
   });
 
@@ -224,6 +249,7 @@ describe('BandFactoryModule', () => {
     expect(module.providers).toContain(BandSetlistRepository);
     expect(module.providers).toContain(BandSetlistSongRepository);
     expect(module.providers).toContain(BandSongRepository);
+    expect(module.providers).toContain(BandBookingRepository);
   });
 
   it('should wire CreateBandUseCase with BandRepository and UserRepository via useFactory', () => {
@@ -345,5 +371,17 @@ describe('BandFactoryModule', () => {
     factoryProvider.useFactory(mockBandSongRepo);
 
     expect(ListBandSongsUseCase).toHaveBeenCalledWith(mockBandSongRepo);
+  });
+
+  it('should wire CreateBandBookingUseCase with BandBookingRepository via useFactory', () => {
+    const module = BandFactoryModule.forRoot();
+    const factoryProvider = (module.providers as any[]).find(
+      (p) => p.provide === BandFactoryModule.CREATE_BAND_BOOKING_USE_CASE,
+    );
+    const mockBandBookingRepo = { save: jest.fn() };
+
+    factoryProvider.useFactory(mockBandBookingRepo);
+
+    expect(CreateBandBookingUseCase).toHaveBeenCalledWith(mockBandBookingRepo);
   });
 });

@@ -8,6 +8,7 @@ import { BandFactoryModule } from './band/band-factory.module';
 import { BandSongController } from './band/band-song.controller';
 import { BandSetlistController } from './band/band-setlist.controller';
 import { BandSetlistSongController } from './band/band-setlist-song.controller';
+import { BandBookingController } from './band/band-booking.controller';
 import { UserController } from './user/user.controller';
 import { UserFactoryModule } from './user/user-factory.module';
 import { AuthController } from './auth/auth.controller';
@@ -41,6 +42,7 @@ import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-memb
     BandSongController,
     BandSetlistController,
     BandSetlistSongController,
+    BandBookingController,
     UserController,
     AuthController,
   ],

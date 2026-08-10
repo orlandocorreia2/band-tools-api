@@ -8,17 +8,20 @@ import { AddSongToSetlistUseCase } from '@usecase/band/add-song-to-setlist.useca
 import { ListSetlistSongsUseCase } from '@usecase/band/list-setlist-songs.usecase';
 import { CreateBandSongUseCase } from '@usecase/band/create-band-song.usecase';
 import { ListBandSongsUseCase } from '@usecase/band/list-band-songs.usecase';
+import { CreateBandBookingUseCase } from '@usecase/band/create-band-booking.usecase';
 import { BandRepository } from '@infrastructure/repository/band/band.repository';
 import { BandSetlistRepository } from '@infrastructure/repository/band/band-setlist.repository';
 import { BandSetlistSongRepository } from '@infrastructure/repository/band/band-setlist-song.repository';
 import { BandSongRepository } from '@infrastructure/repository/band/band-song.repository';
 import { BandMemberRepository } from '@infrastructure/repository/band/band-member.repository';
+import { BandBookingRepository } from '@infrastructure/repository/band/band-booking.repository';
 import { UserRepository } from '@infrastructure/repository/user/user.repository';
 import { BandTypeormEntity } from '@infrastructure/entities/band/band-typeorm.entity';
 import { BandSetlistTypeormEntity } from '@infrastructure/entities/band/band-setlist-typeorm.entity';
 import { BandSetlistSongTypeormEntity } from '@infrastructure/entities/band/band-setlist-song-typeorm.entity';
 import { BandSongTypeormEntity } from '@infrastructure/entities/band/band-song-typeorm.entity';
 import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-member-typeorm.entity';
+import { BandBookingTypeormEntity } from '@infrastructure/entities/band/band-booking-typeorm.entity';
 import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.entity';
 
 @Module({})
@@ -31,6 +34,7 @@ export class BandFactoryModule {
   static readonly LIST_SETLIST_SONGS_USE_CASE = 'ListSetlistSongsUseCase';
   static readonly CREATE_BAND_SONG_USE_CASE = 'CreateBandSongUseCase';
   static readonly LIST_BAND_SONGS_USE_CASE = 'ListBandSongsUseCase';
+  static readonly CREATE_BAND_BOOKING_USE_CASE = 'CreateBandBookingUseCase';
 
   static forRoot(): DynamicModule {
     return {
@@ -43,6 +47,7 @@ export class BandFactoryModule {
           BandSetlistTypeormEntity,
           BandSetlistSongTypeormEntity,
           BandSongTypeormEntity,
+          BandBookingTypeormEntity,
         ]),
       ],
       providers: [
@@ -52,6 +57,7 @@ export class BandFactoryModule {
         BandSetlistRepository,
         BandSetlistSongRepository,
         BandSongRepository,
+        BandBookingRepository,
         {
           provide: BandFactoryModule.CREATE_BAND_USE_CASE,
           inject: [BandRepository, UserRepository],
@@ -126,6 +132,12 @@ export class BandFactoryModule {
           useFactory: (bandSongRepository: BandSongRepository) =>
             new ListBandSongsUseCase(bandSongRepository),
         },
+        {
+          provide: BandFactoryModule.CREATE_BAND_BOOKING_USE_CASE,
+          inject: [BandBookingRepository],
+          useFactory: (bandBookingRepository: BandBookingRepository) =>
+            new CreateBandBookingUseCase(bandBookingRepository),
+        },
       ],
       exports: [
         BandFactoryModule.CREATE_BAND_USE_CASE,
@@ -136,6 +148,7 @@ export class BandFactoryModule {
         BandFactoryModule.LIST_SETLIST_SONGS_USE_CASE,
         BandFactoryModule.CREATE_BAND_SONG_USE_CASE,
         BandFactoryModule.LIST_BAND_SONGS_USE_CASE,
+        BandFactoryModule.CREATE_BAND_BOOKING_USE_CASE,
       ],
     };
   }

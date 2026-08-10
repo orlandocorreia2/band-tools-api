@@ -94,6 +94,55 @@
           ]
         },
         {
+          "name": "Booking",
+          "item": [
+            {
+              "name": "Create",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": \"Novo Show\",\r\n    \"focal_point_name\": \"Fulano de Tal\",\r\n    \"phone\": \"11987654321\",\r\n    \"date\": \"2026-08-08\",\r\n    \"start_time\": \"22:00\",\r\n    \"duration\": \"1 hora\",\r\n    \"address\": \"Rua das Flores, 123 - São Paulo/SP\",\r\n    \"fee\": 100000,\r\n    \"consumption\": \"10 cervejas\",\r\n    \"link\": \"https://showsite.com.br\",\r\n    \"note\": \"Levar todos equipamentos\"\r\n  }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bands/{{bandId}}/bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bands",
+                    "{{bandId}}",
+                    "bookings"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "Setlist",
           "item": [
             {
@@ -219,7 +268,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"name\": \"Nome do Show\"\r\n}",
+                  "raw": "{\r\n    \"name\": \"Outro Show\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"

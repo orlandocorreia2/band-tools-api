@@ -2,6 +2,20 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.13.0] - 2026-08-08
+
+#### Feat
+
+- Cadastro de agendamento de show/evento de uma banda (`POST /bands/:id/bookings`), protegido por `JwtAuthGuard` + `AuthUserIsMemberBandGuard`: recebe `title`, `focal_point_name`, `phone`, `date`, `start_time`, `duration`, `address`, `fee` (obrigatórios) e `consumption`, `link`, `note` (opcionais), persistindo o agendamento na nova tabela `band_bookings`
+- Migration `create-band-bookings-table`: `band_id` como foreign key para `bands.id` (`ON DELETE CASCADE`) e índice dedicado em `band_id`
+- `BandBookingEntity`, `IBandBookingRepository`, `BandBookingTypeormEntity` e `BandBookingRepository`, seguindo o mesmo padrão em camadas já adotado nos demais cadastros
+- `phone`: somente dígitos, sem máscara — 10 caracteres (fixo) ou 11 (celular, com o dígito 9)
+- `fee`: cachê em reais, aceita `0` (show gratuito), limitado ao intervalo `[0, 99999999.99]` com no máximo 2 casas decimais — teto e precisão espelham exatamente a capacidade da coluna `numeric(10,2)`, evitando tanto overflow do banco (que vazaria como HTTP 500 genérico) quanto arredondamento silencioso de valores com mais casas decimais
+- `status`: novo enum `BandBookingStatusEnum` (`Pending`, `Confirmed`, `Cancelled`); todo agendamento é criado com `status = Pending` — o campo não é aceito no payload de criação (descartado pelo `ValidationPipe` com `whitelist: true`) e nenhuma transição de status é exposta nesta primeira etapa
+- Validação de que a combinação `date` + `start_time` representa um instante futuro em relação ao momento do cadastro, tratando ambos como horário de Brasília (UTC-3, fixo, sem horário de verão desde 2019) de forma independente do fuso horário do processo Node — tanto na regra de negócio (`CreateBandBookingUseCase`) quanto na persistência da própria coluna `date` (`dateColumnTransformer`, que substitui a serialização padrão do TypeORM para colunas `date`, a qual usa getters de fuso local e persistiria o dia errado em processos rodando fora de UTC)
+- `duration` como campo de texto livre para a duração do show (ex.: "1 hora", "40 minutos"); `link` genérico para a página do evento/casa de show (Instagram, site ou outra), sem enviesar para uma rede social específica
+- Testes unitários com 100% de cobertura e testes e2e cobrindo cadastro com campos obrigatórios/opcionais, show gratuito, telefone/link/fee inválidos (incluindo telefone mascarado, fee acima da capacidade da coluna e fee com mais de 2 casas decimais), status enviado pelo cliente sendo ignorado, data passada e data atual com horário já passado/ainda futuro, banda inexistente (404), usuário autenticado removido da base (404), usuário não membro da banda (403) e requisição sem token (401)
+
 ### [Version - 0.12.0] - 2026-08-03
 
 #### Feat

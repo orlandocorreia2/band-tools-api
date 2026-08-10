@@ -6,3 +6,4 @@ export * from './add-song-to-setlist.usecase.interface';
 export * from './list-setlist-songs.usecase.interface';
 export * from './create-band-song.usecase.interface';
 export * from './list-band-songs.usecase.interface';
+export * from './create-band-booking.usecase.interface';
