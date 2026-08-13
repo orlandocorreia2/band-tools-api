@@ -119,7 +119,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"title\": \"Novo Show\",\r\n    \"focal_point_name\": \"Fulano de Tal\",\r\n    \"phone\": \"11987654321\",\r\n    \"date\": \"2026-08-08\",\r\n    \"start_time\": \"22:00\",\r\n    \"duration\": \"1 hora\",\r\n    \"address\": \"Rua das Flores, 123 - São Paulo/SP\",\r\n    \"fee\": 100000,\r\n    \"consumption\": \"10 cervejas\",\r\n    \"link\": \"https://showsite.com.br\",\r\n    \"note\": \"Levar todos equipamentos\"\r\n  }",
+                  "raw": "{\r\n    \"title\": \"Novo Show\",\r\n    \"focal_point_name\": \"Fulano de Tal\",\r\n    \"phone\": \"11987654321\",\r\n    \"date\": \"2026-08-31\",\r\n    \"start_time\": \"22:00\",\r\n    \"duration\": \"1 hora\",\r\n    \"address\": \"Rua das Flores, 123 - São Paulo/SP\",\r\n    \"fee\": 100000,\r\n    \"consumption\": \"10 cervejas\",\r\n    \"link\": \"https://showsite.com.br\",\r\n    \"note\": \"Levar todos equipamentos\"\r\n  }",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -418,6 +418,42 @@
     {
       "name": "User",
       "item": [
+        {
+          "name": "Contact",
+          "item": [
+            {
+              "name": "Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"first_name\": \"Orlando\",\n    \"last_name\": \"Nascimento\",\n    \"email\": \"ocnascimento2@gmail.com\",\n    \"phone\": \"11912345678\",\n    \"password\": \"Band@Tools01\"\n  }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
         {
           "name": "Create",
           "request": {

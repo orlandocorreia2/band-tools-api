@@ -11,6 +11,8 @@ import { BandSetlistSongController } from './band/band-setlist-song.controller';
 import { BandBookingController } from './band/band-booking.controller';
 import { UserController } from './user/user.controller';
 import { UserFactoryModule } from './user/user-factory.module';
+import { ContactController } from './contact/contact.controller';
+import { ContactFactoryModule } from './contact/contact-factory.module';
 import { AuthController } from './auth/auth.controller';
 import { AuthFactoryModule } from './auth/auth-factory.module';
 import { JwtAuthGuard } from './middlewares/jwt-auth.guard';
@@ -28,6 +30,7 @@ import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-memb
     HealthCheckFactoryModule.forRoot(),
     BandFactoryModule.forRoot(),
     UserFactoryModule.forRoot(),
+    ContactFactoryModule.forRoot(),
     AuthFactoryModule.forRoot(),
     JwtModule.registerAsync(jwtModuleAsyncOptions),
     TypeOrmModule.forFeature([
@@ -44,6 +47,7 @@ import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-memb
     BandSetlistSongController,
     BandBookingController,
     UserController,
+    ContactController,
     AuthController,
   ],
   providers: [

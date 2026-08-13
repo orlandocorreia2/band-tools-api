@@ -2,6 +2,18 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.14.0] - 2026-08-12
+
+#### Feat
+
+- Cadastro de contatos de shows e eventos vinculados ao usuário autenticado (`POST /users/contacts`), protegido por `JwtAuthGuard`: recebe `name`, `phone`, `venue_name`, `address`, `email`, `role` (obrigatórios) e `alternate_phone`, `notes` (opcionais), persistindo o contato na nova tabela `user_contacts`
+- Migration `create-user-contacts-table`: `user_id` como foreign key para `users.id` (`ON DELETE CASCADE`) e índice dedicado em `user_id`; relação 1:N — um usuário pode ter vários contatos, e cada contato pertence a exatamente um usuário
+- `ContactEntity`, `IContactRepository`, `ContactTypeormEntity` e `ContactRepository`, seguindo o mesmo padrão em camadas já adotado nos demais cadastros
+- `phone`/`alternate_phone`: mesma regra já usada em `POST /bands/:id/bookings` — somente dígitos, sem máscara, 10 caracteres (fixo) ou 11 (celular)
+- `name`, `venue_name` e `role` seguem o mesmo padrão de validação de nome já usado em `title`/`focal_point_name` de `POST /bands/:id/bookings`; `email` segue o mesmo padrão já usado no cadastro de usuário
+- A relação entre contato e banda (vínculo automático ao ser selecionado em um cadastro de evento/booking) fica para uma mudança futura; esta primeira etapa cobre apenas o vínculo com o usuário
+- Testes unitários com 100% de cobertura e testes e2e cobrindo cadastro com campos obrigatórios/opcionais, ausência de cada campo obrigatório e telefone/e-mail inválidos (422), e requisição sem token (401)
+
 ### [Version - 0.13.0] - 2026-08-08
 
 #### Feat
