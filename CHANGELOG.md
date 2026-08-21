@@ -2,6 +2,17 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.15.0] - 2026-08-21
+
+#### Feat
+
+- Listagem dos contatos do usuário autenticado (`GET /users/contacts`), protegida por `JwtAuthGuard`: retorna, sem paginação, apenas os contatos cujo `user_id` corresponda ao usuário autenticado, ordenados por `created_at` decrescente
+- `IContactRepository` ganha `findAllByUserId(userId)`, implementado em `ContactRepository` filtrando por `user_id` e ordenado por `created_at DESC`
+- `ListContactsByUserUseCase`, seguindo o mesmo padrão já adotado em `ListBandsByUserUseCase`
+- `ContactResponseDto` e `ListContactsResponseDto`, seguindo o mesmo padrão de envelope `{ "data": [...] }` já adotado em `GET /bands`
+- O filtro por usuário usa exclusivamente o `user_id` extraído do JWT (`request.user.id`), nunca um parâmetro vindo do cliente, prevenindo acesso aos contatos de outros usuários (IDOR)
+- Testes unitários com 100% de cobertura e testes e2e cobrindo listagem com contatos cadastrados, listagem vazia, isolamento entre usuários e requisição sem token (401)
+
 ### [Version - 0.14.0] - 2026-08-12
 
 #### Feat

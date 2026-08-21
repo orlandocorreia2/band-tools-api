@@ -17,4 +17,13 @@ export class ContactRepository implements IContactRepository {
 
     await this.repository.save(entity);
   }
+
+  async findAllByUserId(userId: string): Promise<ContactEntity[]> {
+    const contacts = await this.repository.find({
+      where: { user_id: userId },
+      order: { created_at: 'DESC' },
+    });
+
+    return contacts;
+  }
 }

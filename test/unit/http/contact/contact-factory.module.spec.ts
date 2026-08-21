@@ -13,6 +13,12 @@ jest.mock('@usecase/contact/create-contact.usecase', () => ({
     .mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
+jest.mock('@usecase/contact/list-contacts-by-user.usecase', () => ({
+  ListContactsByUserUseCase: jest
+    .fn()
+    .mockImplementation(() => ({ execute: jest.fn() })),
+}));
+
 jest.mock('@infrastructure/entities/contact/contact-typeorm.entity', () => ({
   ContactTypeormEntity: class ContactTypeormEntity {},
 }));
@@ -23,6 +29,7 @@ jest.mock('@infrastructure/repository/contact/contact.repository', () => ({
 
 import { ContactFactoryModule } from '@http/contact/contact-factory.module';
 import { CreateContactUseCase } from '@usecase/contact/create-contact.usecase';
+import { ListContactsByUserUseCase } from '@usecase/contact/list-contacts-by-user.usecase';
 import type { ContactRepository } from '@infrastructure/repository/contact/contact.repository';
 
 describe('ContactFactoryModule', () => {
@@ -36,14 +43,23 @@ describe('ContactFactoryModule', () => {
     );
   });
 
+  it('should expose LIST_CONTACTS_BY_USER_USE_CASE token', () => {
+    expect(ContactFactoryModule.LIST_CONTACTS_BY_USER_USE_CASE).toBe(
+      'ListContactsByUserUseCase',
+    );
+  });
+
   it('should return a DynamicModule from forRoot()', () => {
     const module = ContactFactoryModule.forRoot();
 
     expect(module).toBeDefined();
     expect(module.module).toBe(ContactFactoryModule);
     expect(module.providers).toBeDefined();
-    expect(module.exports).toContain(
-      ContactFactoryModule.CREATE_CONTACT_USE_CASE,
+    expect(module.exports).toEqual(
+      expect.arrayContaining([
+        ContactFactoryModule.CREATE_CONTACT_USE_CASE,
+        ContactFactoryModule.LIST_CONTACTS_BY_USER_USE_CASE,
+      ]),
     );
   });
 
@@ -59,5 +75,19 @@ describe('ContactFactoryModule', () => {
     factoryProvider.useFactory(mockRepo);
 
     expect(CreateContactUseCase).toHaveBeenCalledWith(mockRepo);
+  });
+
+  it('should wire ListContactsByUserUseCase with ContactRepository via useFactory', () => {
+    const module = ContactFactoryModule.forRoot();
+    const factoryProvider = (module.providers as any[]).find(
+      (p) => p.provide === ContactFactoryModule.LIST_CONTACTS_BY_USER_USE_CASE,
+    );
+    const mockRepo: jest.Mocked<InstanceType<typeof ContactRepository>> = {
+      findAllByUserId: jest.fn(),
+    } as any;
+
+    factoryProvider.useFactory(mockRepo);
+
+    expect(ListContactsByUserUseCase).toHaveBeenCalledWith(mockRepo);
   });
 });

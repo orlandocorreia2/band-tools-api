@@ -424,6 +424,16 @@
             {
               "name": "Create",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "POST",
                 "header": [
                   {
@@ -433,7 +443,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"first_name\": \"Orlando\",\n    \"last_name\": \"Nascimento\",\n    \"email\": \"ocnascimento2@gmail.com\",\n    \"phone\": \"11912345678\",\n    \"password\": \"Band@Tools01\"\n  }",
+                  "raw": "{\n    \"name\": \"Mauricio\",\n    \"venue_name\": \"Relica's\",\n    \"address\": \"rua grajaú\",\n    \"email\": \"mauricio@gmail.com\",\n    \"phone\": \"11948108855\",\n    \"alternate_phone\": \"11948108866\",\n    \"role\": \"Dono\",\n    \"notes\": \"Entrar em contato pelo whats\"\n  }",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -441,12 +451,46 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/users",
+                  "raw": "{{baseUrl}}/users/contacts",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "users"
+                    "users",
+                    "contacts"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "FindAll",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/contacts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "contacts"
                   ]
                 }
               },
