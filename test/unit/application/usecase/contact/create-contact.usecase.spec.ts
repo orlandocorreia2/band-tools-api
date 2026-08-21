@@ -25,6 +25,8 @@ describe('CreateContactUseCase', () => {
   beforeEach(() => {
     contactRepository = {
       save: jest.fn().mockResolvedValue(undefined),
+      findAllByUserId: jest.fn().mockResolvedValue([]),
+      findByIdAndUserId: jest.fn().mockResolvedValue(null),
     };
     useCase = new CreateContactUseCase(contactRepository);
   });

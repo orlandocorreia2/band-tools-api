@@ -6,13 +6,13 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  IsUUID,
   Matches,
   Max,
   Min,
   MinLength,
 } from 'class-validator';
 
-const BRAZILIAN_PHONE_REGEX = /^\d{10,11}$/;
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 const MAX_FEE = 99999999.99;
 
@@ -22,17 +22,9 @@ export class CreateBandBookingDto {
   @MinLength(1)
   title: string;
 
-  @ApiProperty({ example: 'Maria Souza', minLength: 1 })
-  @IsString()
-  @MinLength(1)
-  focal_point_name: string;
-
-  @ApiProperty({ example: '11987654321' })
-  @IsString()
-  @Matches(BRAZILIAN_PHONE_REGEX, {
-    message: 'phone must contain only digits (10 or 11 digits, no formatting)',
-  })
-  phone: string;
+  @ApiProperty({ example: '019a2635-cc34-745e-8d67-f0247e2dcba6' })
+  @IsUUID()
+  contact_id: string;
 
   @ApiProperty({ example: '2026-09-12' })
   @IsDate()
@@ -48,11 +40,6 @@ export class CreateBandBookingDto {
   @IsString()
   @MinLength(1)
   duration: string;
-
-  @ApiProperty({ example: 'Rua das Flores, 123 - São Paulo/SP', minLength: 1 })
-  @IsString()
-  @MinLength(1)
-  address: string;
 
   @ApiProperty({ example: 800.0 })
   @IsNumber({ maxDecimalPlaces: 2 })

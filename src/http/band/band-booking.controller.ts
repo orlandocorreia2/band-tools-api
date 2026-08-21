@@ -4,6 +4,7 @@ import {
   Inject,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -14,6 +15,8 @@ import { AuthUserIsMemberBandGuard } from '@http/middlewares/auth-user-is-member
 import { BandFactoryModule } from './band-factory.module';
 import { FindIdParamDto } from '@shared/commons/dtos/find-id-param.dto';
 import { ApiCreateBandBooking } from './decorators/create-band-booking.decorator';
+
+type AuthenticatedRequest = { user: { id: string } };
 
 @ApiTags('bands')
 @ApiBearerAuth()
@@ -30,7 +33,12 @@ export class BandBookingController {
   async create(
     @Param() params: FindIdParamDto,
     @Body() dto: CreateBandBookingDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<void> {
-    await this.createBandBookingUseCase.execute(params.id, dto);
+    await this.createBandBookingUseCase.execute(
+      params.id,
+      request.user.id,
+      dto,
+    );
   }
 }

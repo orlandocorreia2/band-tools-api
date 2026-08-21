@@ -16,6 +16,7 @@ describe('ListContactsByUserUseCase', () => {
     contactRepository = {
       save: jest.fn().mockResolvedValue(undefined),
       findAllByUserId: jest.fn().mockResolvedValue([]),
+      findByIdAndUserId: jest.fn().mockResolvedValue(null),
     };
     useCase = new ListContactsByUserUseCase(contactRepository);
   });

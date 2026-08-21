@@ -1,12 +1,19 @@
 import { CreateBandBookingUseCase } from '@usecase/band/create-band-booking.usecase';
 import type { CreateBandBookingUseCaseInterface } from '@usecase/band/interfaces';
 import { IBandBookingRepository } from '@domain/repositories/band/band-booking.repository.interface';
+import { IContactRepository } from '@domain/repositories/contact/contact.repository.interface';
 import { BandBookingEntity } from '@domain/entities/band/band-booking.entity';
+import { ContactEntity } from '@domain/entities/contact/contact.entity';
 import { BandBookingStatusEnum } from '@shared/commons/enums';
 import { CreateBandBookingDto } from '@shared/communication/dtos/band/create-band-booking.dto';
-import { ApplicationUnprocessableEntityException } from '@shared/exceptions/business.exception';
+import {
+  ApplicationNotFoundException,
+  ApplicationUnprocessableEntityException,
+} from '@shared/exceptions/business.exception';
 
 const bandId = 'band-uuid';
+const userId = 'user-uuid';
+const contactId = 'contact-uuid';
 
 const BRAZIL_UTC_OFFSET_HOURS = 3;
 
@@ -43,30 +50,50 @@ const makeDto = (
 
   return {
     title: 'Show Bar do Zé',
-    focal_point_name: 'Maria Souza',
-    phone: '11987654321',
+    contact_id: contactId,
     date,
     start_time,
     duration: '1 hora',
-    address: 'Rua das Flores, 123 - São Paulo/SP',
     fee: 800,
     ...overrides,
   };
 };
 
+const makeContact = (overrides: Partial<ContactEntity> = {}): ContactEntity =>
+  ({
+    id: contactId,
+    user_id: userId,
+    name: 'Maria Souza',
+    phone: '11987654321',
+    venue_name: 'Bar do Zé',
+    address: 'Rua das Flores, 123 - São Paulo/SP',
+    email: 'contato@bardoze.com',
+    role: 'Produtor',
+    ...overrides,
+  }) as ContactEntity;
+
 describe('CreateBandBookingUseCase', () => {
   let useCase: CreateBandBookingUseCaseInterface;
   let bandBookingRepository: jest.Mocked<IBandBookingRepository>;
+  let contactRepository: jest.Mocked<IContactRepository>;
 
   beforeEach(() => {
     bandBookingRepository = {
       save: jest.fn().mockResolvedValue(undefined),
     };
-    useCase = new CreateBandBookingUseCase(bandBookingRepository);
+    contactRepository = {
+      save: jest.fn(),
+      findAllByUserId: jest.fn(),
+      findByIdAndUserId: jest.fn().mockResolvedValue(makeContact()),
+    };
+    useCase = new CreateBandBookingUseCase(
+      bandBookingRepository,
+      contactRepository,
+    );
   });
 
   it('should call bandBookingRepository.save with a BandBookingEntity instance', async () => {
-    await useCase.execute(bandId, makeDto());
+    await useCase.execute(bandId, userId, makeDto());
 
     expect(bandBookingRepository.save).toHaveBeenCalledTimes(1);
     expect(bandBookingRepository.save).toHaveBeenCalledWith(
@@ -76,24 +103,22 @@ describe('CreateBandBookingUseCase', () => {
 
   it('should create BandBookingEntity with the correct required props from dto and bandId', async () => {
     const dto = makeDto();
-    await useCase.execute(bandId, dto);
+    await useCase.execute(bandId, userId, dto);
 
     const saved: BandBookingEntity =
       bandBookingRepository.save.mock.calls[0][0];
     expect(saved.band_id).toBe(bandId);
     expect(saved.title).toBe(dto.title);
-    expect(saved.focal_point_name).toBe(dto.focal_point_name);
-    expect(saved.phone).toBe(dto.phone);
+    expect(saved.contact_id).toBe(dto.contact_id);
     expect(saved.date).toBe(dto.date);
     expect(saved.start_time).toBe(dto.start_time);
     expect(saved.duration).toBe(dto.duration);
-    expect(saved.address).toBe(dto.address);
     expect(saved.fee).toBe(dto.fee);
   });
 
   it('should always create BandBookingEntity with status Pending', async () => {
     const dto = makeDto();
-    await useCase.execute(bandId, dto);
+    await useCase.execute(bandId, userId, dto);
 
     const saved: BandBookingEntity =
       bandBookingRepository.save.mock.calls[0][0];
@@ -106,7 +131,7 @@ describe('CreateBandBookingUseCase', () => {
       link: 'https://instagram.com/bardoze',
       note: 'Levar equipamento de som próprio',
     });
-    await useCase.execute(bandId, dto);
+    await useCase.execute(bandId, userId, dto);
 
     const saved: BandBookingEntity =
       bandBookingRepository.save.mock.calls[0][0];
@@ -117,7 +142,7 @@ describe('CreateBandBookingUseCase', () => {
 
   it('should create BandBookingEntity with fee equal to zero for a free show', async () => {
     const dto = makeDto({ fee: 0 });
-    await useCase.execute(bandId, dto);
+    await useCase.execute(bandId, userId, dto);
 
     const saved: BandBookingEntity =
       bandBookingRepository.save.mock.calls[0][0];
@@ -125,7 +150,7 @@ describe('CreateBandBookingUseCase', () => {
   });
 
   it('should return void', async () => {
-    const result = await useCase.execute(bandId, makeDto());
+    const result = await useCase.execute(bandId, userId, makeDto());
 
     expect(result).toBeUndefined();
   });
@@ -136,7 +161,7 @@ describe('CreateBandBookingUseCase', () => {
       start_time: '12:00',
     });
 
-    await expect(useCase.execute(bandId, dto)).rejects.toThrow(
+    await expect(useCase.execute(bandId, userId, dto)).rejects.toThrow(
       ApplicationUnprocessableEntityException,
     );
     expect(bandBookingRepository.save).not.toHaveBeenCalled();
@@ -148,7 +173,7 @@ describe('CreateBandBookingUseCase', () => {
     );
     const dto = makeDto({ date, start_time });
 
-    await expect(useCase.execute(bandId, dto)).rejects.toThrow(
+    await expect(useCase.execute(bandId, userId, dto)).rejects.toThrow(
       ApplicationUnprocessableEntityException,
     );
     expect(bandBookingRepository.save).not.toHaveBeenCalled();
@@ -160,8 +185,46 @@ describe('CreateBandBookingUseCase', () => {
     );
     const dto = makeDto({ date, start_time });
 
-    await useCase.execute(bandId, dto);
+    await useCase.execute(bandId, userId, dto);
 
     expect(bandBookingRepository.save).toHaveBeenCalledTimes(1);
+  });
+
+  describe('contact ownership validation', () => {
+    it('should call contactRepository.findByIdAndUserId with the dto contact_id and the authenticated userId', async () => {
+      const dto = makeDto();
+      await useCase.execute(bandId, userId, dto);
+
+      expect(contactRepository.findByIdAndUserId).toHaveBeenCalledWith(
+        dto.contact_id,
+        userId,
+      );
+    });
+
+    it('should throw ApplicationNotFoundException when the contact does not exist', async () => {
+      contactRepository.findByIdAndUserId.mockResolvedValueOnce(null);
+
+      await expect(
+        useCase.execute(bandId, userId, makeDto()),
+      ).rejects.toThrow(ApplicationNotFoundException);
+      expect(bandBookingRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should throw ApplicationNotFoundException when the contact belongs to another user', async () => {
+      contactRepository.findByIdAndUserId.mockResolvedValueOnce(null);
+
+      await expect(
+        useCase.execute(bandId, userId, makeDto()),
+      ).rejects.toThrow(ApplicationNotFoundException);
+      expect(bandBookingRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should create the booking when the contact exists and belongs to the authenticated user', async () => {
+      contactRepository.findByIdAndUserId.mockResolvedValueOnce(makeContact());
+
+      await useCase.execute(bandId, userId, makeDto());
+
+      expect(bandBookingRepository.save).toHaveBeenCalledTimes(1);
+    });
   });
 });

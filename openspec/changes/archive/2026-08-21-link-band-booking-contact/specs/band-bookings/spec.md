@@ -1,8 +1,5 @@
-# band-bookings Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change add-band-bookings. Update Purpose after archive.
-## Requirements
 ### Requirement: Cadastro de agendamento de show/evento da banda
 O sistema DEVE (SHALL) permitir o cadastro de um agendamento de show/evento para uma banda através de `POST /bands/:id/bookings`, com os seguintes campos:
 

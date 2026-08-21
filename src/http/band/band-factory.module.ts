@@ -16,6 +16,7 @@ import { BandSongRepository } from '@infrastructure/repository/band/band-song.re
 import { BandMemberRepository } from '@infrastructure/repository/band/band-member.repository';
 import { BandBookingRepository } from '@infrastructure/repository/band/band-booking.repository';
 import { UserRepository } from '@infrastructure/repository/user/user.repository';
+import { ContactRepository } from '@infrastructure/repository/contact/contact.repository';
 import { BandTypeormEntity } from '@infrastructure/entities/band/band-typeorm.entity';
 import { BandSetlistTypeormEntity } from '@infrastructure/entities/band/band-setlist-typeorm.entity';
 import { BandSetlistSongTypeormEntity } from '@infrastructure/entities/band/band-setlist-song-typeorm.entity';
@@ -23,6 +24,7 @@ import { BandSongTypeormEntity } from '@infrastructure/entities/band/band-song-t
 import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-member-typeorm.entity';
 import { BandBookingTypeormEntity } from '@infrastructure/entities/band/band-booking-typeorm.entity';
 import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.entity';
+import { ContactTypeormEntity } from '@infrastructure/entities/contact/contact-typeorm.entity';
 
 @Module({})
 export class BandFactoryModule {
@@ -48,6 +50,7 @@ export class BandFactoryModule {
           BandSetlistSongTypeormEntity,
           BandSongTypeormEntity,
           BandBookingTypeormEntity,
+          ContactTypeormEntity,
         ]),
       ],
       providers: [
@@ -58,6 +61,7 @@ export class BandFactoryModule {
         BandSetlistSongRepository,
         BandSongRepository,
         BandBookingRepository,
+        ContactRepository,
         {
           provide: BandFactoryModule.CREATE_BAND_USE_CASE,
           inject: [BandRepository, UserRepository],
@@ -134,9 +138,15 @@ export class BandFactoryModule {
         },
         {
           provide: BandFactoryModule.CREATE_BAND_BOOKING_USE_CASE,
-          inject: [BandBookingRepository],
-          useFactory: (bandBookingRepository: BandBookingRepository) =>
-            new CreateBandBookingUseCase(bandBookingRepository),
+          inject: [BandBookingRepository, ContactRepository],
+          useFactory: (
+            bandBookingRepository: BandBookingRepository,
+            contactRepository: ContactRepository,
+          ) =>
+            new CreateBandBookingUseCase(
+              bandBookingRepository,
+              contactRepository,
+            ),
         },
       ],
       exports: [

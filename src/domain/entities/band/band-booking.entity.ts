@@ -5,12 +5,10 @@ type BandBookingProps = {
   id?: string;
   band_id: string;
   title: string;
-  focal_point_name: string;
-  phone: string;
+  contact_id: string;
   date: Date;
   start_time: string;
   duration: string;
-  address: string;
   fee: number;
   consumption?: string;
   link?: string;
@@ -21,12 +19,10 @@ type BandBookingProps = {
 export class BandBookingEntity extends BaseEntity {
   readonly band_id: string;
   readonly title: string;
-  readonly focal_point_name: string;
-  readonly phone: string;
+  readonly contact_id: string;
   readonly date: Date;
   readonly start_time: string;
   readonly duration: string;
-  readonly address: string;
   readonly fee: number;
   readonly status: BandBookingStatusEnum;
   readonly consumption?: string;
@@ -37,12 +33,10 @@ export class BandBookingEntity extends BaseEntity {
     super(props);
     this.band_id = props.band_id;
     this.title = props.title;
-    this.focal_point_name = props.focal_point_name;
-    this.phone = props.phone;
+    this.contact_id = props.contact_id;
     this.date = props.date;
     this.start_time = props.start_time;
     this.duration = props.duration;
-    this.address = props.address;
     this.fee = props.fee;
     this.status = BandBookingStatusEnum.Pending;
     this.consumption = props.consumption;

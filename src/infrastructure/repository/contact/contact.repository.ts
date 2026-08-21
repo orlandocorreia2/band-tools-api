@@ -26,4 +26,13 @@ export class ContactRepository implements IContactRepository {
 
     return contacts;
   }
+
+  async findByIdAndUserId(
+    id: string,
+    userId: string,
+  ): Promise<ContactEntity | null> {
+    const contact = await this.repository.findOneBy({ id, user_id: userId });
+
+    return contact;
+  }
 }

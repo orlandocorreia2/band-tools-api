@@ -13,7 +13,7 @@ import { Repository } from 'typeorm';
 describe('ContactRepository', () => {
   let contactRepository: ContactRepository;
   let typeormRepo: jest.Mocked<
-    Pick<Repository<any>, 'create' | 'save' | 'find'>
+    Pick<Repository<any>, 'create' | 'save' | 'find' | 'findOneBy'>
   >;
 
   beforeEach(() => {
@@ -21,6 +21,7 @@ describe('ContactRepository', () => {
       create: jest.fn(),
       save: jest.fn().mockResolvedValue(undefined),
       find: jest.fn().mockResolvedValue([]),
+      findOneBy: jest.fn().mockResolvedValue(null),
     };
     contactRepository = new ContactRepository(typeormRepo as any);
   });
@@ -81,6 +82,38 @@ describe('ContactRepository', () => {
       const result = await contactRepository.findAllByUserId('user-uuid');
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('findByIdAndUserId', () => {
+    it('should call repository.findOneBy filtering by id and user_id', async () => {
+      await contactRepository.findByIdAndUserId('contact-uuid', 'user-uuid');
+
+      expect(typeormRepo.findOneBy).toHaveBeenCalledWith({
+        id: 'contact-uuid',
+        user_id: 'user-uuid',
+      });
+    });
+
+    it('should return the contact when found', async () => {
+      const contact = { id: 'contact-uuid', user_id: 'user-uuid' };
+      typeormRepo.findOneBy.mockResolvedValueOnce(contact as any);
+
+      const result = await contactRepository.findByIdAndUserId(
+        'contact-uuid',
+        'user-uuid',
+      );
+
+      expect(result).toBe(contact);
+    });
+
+    it('should return null when no contact matches the id and user_id', async () => {
+      const result = await contactRepository.findByIdAndUserId(
+        'contact-uuid',
+        'user-uuid',
+      );
+
+      expect(result).toBeNull();
     });
   });
 });

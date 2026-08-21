@@ -92,6 +92,10 @@ jest.mock('@infrastructure/entities/band/band-booking-typeorm.entity', () => ({
   BandBookingTypeormEntity: class BandBookingTypeormEntity {},
 }));
 
+jest.mock('@infrastructure/entities/contact/contact-typeorm.entity', () => ({
+  ContactTypeormEntity: class ContactTypeormEntity {},
+}));
+
 jest.mock('@infrastructure/repository/band/band.repository', () => ({
   BandRepository: class BandRepository {},
 }));
@@ -123,6 +127,10 @@ jest.mock('@infrastructure/repository/band/band-booking.repository', () => ({
   BandBookingRepository: class BandBookingRepository {},
 }));
 
+jest.mock('@infrastructure/repository/contact/contact.repository', () => ({
+  ContactRepository: class ContactRepository {},
+}));
+
 import { BandFactoryModule } from '@http/band/band-factory.module';
 import { CreateBandUseCase } from '@usecase/band/create-band.usecase';
 import { ListBandsByUserUseCase } from '@usecase/band/list-bands-by-user.usecase';
@@ -141,12 +149,14 @@ import { BandSetlistTypeormEntity } from '@infrastructure/entities/band/band-set
 import { BandSetlistSongTypeormEntity } from '@infrastructure/entities/band/band-setlist-song-typeorm.entity';
 import { BandSongTypeormEntity } from '@infrastructure/entities/band/band-song-typeorm.entity';
 import { BandBookingTypeormEntity } from '@infrastructure/entities/band/band-booking-typeorm.entity';
+import { ContactTypeormEntity } from '@infrastructure/entities/contact/contact-typeorm.entity';
 import { BandMemberRepository } from '@infrastructure/repository/band/band-member.repository';
 import { UserRepository } from '@infrastructure/repository/user/user.repository';
 import { BandSetlistRepository } from '@infrastructure/repository/band/band-setlist.repository';
 import { BandSetlistSongRepository } from '@infrastructure/repository/band/band-setlist-song.repository';
 import { BandSongRepository } from '@infrastructure/repository/band/band-song.repository';
 import { BandBookingRepository } from '@infrastructure/repository/band/band-booking.repository';
+import { ContactRepository } from '@infrastructure/repository/contact/contact.repository';
 import type { BandRepository } from '@infrastructure/repository/band/band.repository';
 
 describe('BandFactoryModule', () => {
@@ -238,6 +248,7 @@ describe('BandFactoryModule', () => {
       BandSetlistSongTypeormEntity,
       BandSongTypeormEntity,
       BandBookingTypeormEntity,
+      ContactTypeormEntity,
     ]);
   });
 
@@ -250,6 +261,7 @@ describe('BandFactoryModule', () => {
     expect(module.providers).toContain(BandSetlistSongRepository);
     expect(module.providers).toContain(BandSongRepository);
     expect(module.providers).toContain(BandBookingRepository);
+    expect(module.providers).toContain(ContactRepository);
   });
 
   it('should wire CreateBandUseCase with BandRepository and UserRepository via useFactory', () => {
@@ -373,15 +385,23 @@ describe('BandFactoryModule', () => {
     expect(ListBandSongsUseCase).toHaveBeenCalledWith(mockBandSongRepo);
   });
 
-  it('should wire CreateBandBookingUseCase with BandBookingRepository via useFactory', () => {
+  it('should wire CreateBandBookingUseCase with BandBookingRepository and ContactRepository via useFactory', () => {
     const module = BandFactoryModule.forRoot();
     const factoryProvider = (module.providers as any[]).find(
       (p) => p.provide === BandFactoryModule.CREATE_BAND_BOOKING_USE_CASE,
     );
     const mockBandBookingRepo = { save: jest.fn() };
+    const mockContactRepo = {
+      save: jest.fn(),
+      findAllByUserId: jest.fn(),
+      findByIdAndUserId: jest.fn(),
+    };
 
-    factoryProvider.useFactory(mockBandBookingRepo);
+    factoryProvider.useFactory(mockBandBookingRepo, mockContactRepo);
 
-    expect(CreateBandBookingUseCase).toHaveBeenCalledWith(mockBandBookingRepo);
+    expect(CreateBandBookingUseCase).toHaveBeenCalledWith(
+      mockBandBookingRepo,
+      mockContactRepo,
+    );
   });
 });

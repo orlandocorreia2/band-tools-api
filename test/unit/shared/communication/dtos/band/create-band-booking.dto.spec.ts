@@ -4,12 +4,10 @@ import { CreateBandBookingDto } from '@shared/communication/dtos/band/create-ban
 
 const makeValidPlain = () => ({
   title: 'Show Bar do Zé',
-  focal_point_name: 'Maria Souza',
-  phone: '11987654321',
+  contact_id: '019a2635-cc34-745e-8d67-f0247e2dcba6',
   date: new Date('2026-09-12'),
   start_time: '22:00',
   duration: '1 hora',
-  address: 'Rua das Flores, 123 - São Paulo/SP',
   fee: 800,
 });
 
@@ -27,16 +25,17 @@ describe('CreateBandBookingDto', () => {
     expect(errors.some((e) => e.property === 'title')).toBe(true);
   });
 
-  it('should fail when focal_point_name is missing', async () => {
-    const { focal_point_name, ...rest } = makeValidPlain();
+  it('should fail when contact_id is missing', async () => {
+    const { contact_id, ...rest } = makeValidPlain();
     const errors = await validate(toDto(rest));
-    expect(errors.some((e) => e.property === 'focal_point_name')).toBe(true);
+    expect(errors.some((e) => e.property === 'contact_id')).toBe(true);
   });
 
-  it('should fail when address is missing', async () => {
-    const { address, ...rest } = makeValidPlain();
-    const errors = await validate(toDto(rest));
-    expect(errors.some((e) => e.property === 'address')).toBe(true);
+  it('should fail when contact_id is not a valid UUID', async () => {
+    const errors = await validate(
+      toDto({ ...makeValidPlain(), contact_id: 'not-a-uuid' }),
+    );
+    expect(errors.some((e) => e.property === 'contact_id')).toBe(true);
   });
 
   it('should fail when duration is missing', async () => {
@@ -50,38 +49,6 @@ describe('CreateBandBookingDto', () => {
       toDto({ ...makeValidPlain(), date: 'not-a-date' }),
     );
     expect(errors.some((e) => e.property === 'date')).toBe(true);
-  });
-
-  it('should fail when phone is missing', async () => {
-    const { phone, ...rest } = makeValidPlain();
-    const errors = await validate(toDto(rest));
-    expect(errors.some((e) => e.property === 'phone')).toBe(true);
-  });
-
-  it('should fail when phone is not a valid Brazilian phone number', async () => {
-    const errors = await validate(toDto({ ...makeValidPlain(), phone: '123' }));
-    expect(errors.some((e) => e.property === 'phone')).toBe(true);
-  });
-
-  it('should fail when phone contains formatting characters', async () => {
-    const errors = await validate(
-      toDto({ ...makeValidPlain(), phone: '(11) 98765-4321' }),
-    );
-    expect(errors.some((e) => e.property === 'phone')).toBe(true);
-  });
-
-  it('should pass with a valid fixed-line phone number (10 digits, no mask)', async () => {
-    const errors = await validate(
-      toDto({ ...makeValidPlain(), phone: '1133654321' }),
-    );
-    expect(errors).toHaveLength(0);
-  });
-
-  it('should fail when phone has more than 11 digits', async () => {
-    const errors = await validate(
-      toDto({ ...makeValidPlain(), phone: '119876543210' }),
-    );
-    expect(errors.some((e) => e.property === 'phone')).toBe(true);
   });
 
   it('should fail when start_time is missing', async () => {

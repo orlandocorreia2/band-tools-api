@@ -8,6 +8,7 @@ import { ExceptionFilterMiddleware } from '@http/middlewares/exception-filter.mi
 import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.entity';
 import { BandTypeormEntity } from '@infrastructure/entities/band/band-typeorm.entity';
 import { BandBookingTypeormEntity } from '@infrastructure/entities/band/band-booking-typeorm.entity';
+import { ContactTypeormEntity } from '@infrastructure/entities/contact/contact-typeorm.entity';
 import { BandBookingStatusEnum } from '@shared/commons/enums';
 import { ExceptionTypeEnum } from '@shared/commons/enums/exception.enum';
 import { BaseException } from '@shared/exceptions/base.exception';
@@ -38,6 +39,17 @@ const validBandPayload = (name: string) => ({
   description: 'Descrição da Banda',
 });
 
+const uniqueContactName = () => `Maria Souza ${uniqueSuffix()}`;
+
+const validContactPayload = (name: string) => ({
+  name,
+  phone: '11987654321',
+  venue_name: 'Bar do Zé',
+  address: 'Rua das Flores, 123 - São Paulo/SP',
+  email: 'contato@bardoze.com',
+  role: 'Produtor',
+});
+
 const uniqueTitle = () => `Show Bar do Zé ${uniqueSuffix()}`;
 
 const BRAZIL_UTC_OFFSET_HOURS = 3;
@@ -63,17 +75,15 @@ const toBrazilDateAndTime = (instant: Date) => {
   return { date, start_time };
 };
 
-const validBookingPayload = (title: string) => {
+const validBookingPayload = (title: string, contactId: string) => {
   const { date, start_time } = toBrazilDateAndTime(hoursFromNow(2));
 
   return {
     title,
-    focal_point_name: 'Maria Souza',
-    phone: '11987654321',
+    contact_id: contactId,
     date,
     start_time,
     duration: '1 hora',
-    address: 'Rua das Flores, 123 - São Paulo/SP',
     fee: 800,
   };
 };
@@ -90,6 +100,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
   let app: INestApplication;
   let accessToken: string;
   let bandId: string;
+  let contactId: string;
 
   const registerAndLogin = async (): Promise<{
     accessToken: string;
@@ -108,6 +119,21 @@ describe('POST /bands/:id/bookings (e2e)', () => {
 
     const token: string = loginResponse.body.accessToken;
     return { accessToken: token, userId: decodeUserIdFromToken(token) };
+  };
+
+  const createContact = async (token: string): Promise<string> => {
+    const name = uniqueContactName();
+    await request(app.getHttpServer())
+      .post('/users/contacts')
+      .set('Authorization', `Bearer ${token}`)
+      .send(validContactPayload(name))
+      .expect(201);
+
+    const dataSource = app.get<DataSource>(getDataSourceToken());
+    const contact = await dataSource
+      .getRepository(ContactTypeormEntity)
+      .findOneBy({ name });
+    return contact.id;
   };
 
   const findBookingByTitle = async (title: string) => {
@@ -160,6 +186,8 @@ describe('POST /bands/:id/bookings (e2e)', () => {
       .getRepository(BandTypeormEntity)
       .findOneBy({ name: bandName });
     bandId = band.id;
+
+    contactId = await createContact(accessToken);
   });
 
   afterAll(async () => {
@@ -171,12 +199,13 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(validBookingPayload(title))
+      .send(validBookingPayload(title, contactId))
       .expect(201);
 
     const booking = await findBookingByTitle(title);
     expect(booking).not.toBeNull();
     expect(booking.status).toBe(BandBookingStatusEnum.Pending);
+    expect(booking.contact_id).toBe(contactId);
   });
 
   it('should persist optional fields when provided', async () => {
@@ -185,7 +214,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        ...validBookingPayload(title),
+        ...validBookingPayload(title, contactId),
         consumption: 'Consumação mínima de R$ 50,00 por pessoa',
         link: 'https://instagram.com/bardoze',
         note: 'Levar equipamento de som próprio',
@@ -205,7 +234,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(validBookingPayload(title))
+      .send(validBookingPayload(title, contactId))
       .expect(201);
 
     const booking = await findBookingByTitle(title);
@@ -219,7 +248,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...validBookingPayload(title), fee: 0 })
+      .send({ ...validBookingPayload(title, contactId), fee: 0 })
       .expect(201);
 
     const booking = await findBookingByTitle(title);
@@ -236,7 +265,10 @@ describe('POST /bands/:id/bookings (e2e)', () => {
   });
 
   it('should return 422 when title is missing', async () => {
-    const { title, ...rest } = validBookingPayload(uniqueTitle());
+    const { title, ...rest } = validBookingPayload(
+      uniqueTitle(),
+      contactId,
+    );
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
@@ -244,30 +276,67 @@ describe('POST /bands/:id/bookings (e2e)', () => {
       .expect(422);
   });
 
-  it('should return 422 when phone is not a valid Brazilian phone number', async () => {
+  it('should return 422 when contact_id is missing', async () => {
+    const { contact_id, ...rest } = validBookingPayload(
+      uniqueTitle(),
+      contactId,
+    );
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...validBookingPayload(uniqueTitle()), phone: '123' })
+      .send(rest)
       .expect(422);
   });
 
-  it('should return 422 when phone contains formatting characters', async () => {
+  it('should return 422 when contact_id is not a valid UUID', async () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        ...validBookingPayload(uniqueTitle()),
-        phone: '(11) 98765-4321',
+        ...validBookingPayload(uniqueTitle(), contactId),
+        contact_id: 'not-a-uuid',
       })
       .expect(422);
+  });
+
+  it('should return 404 and not persist when contact_id does not correspond to any contact', async () => {
+    const title = uniqueTitle();
+    await request(app.getHttpServer())
+      .post(`/bands/${bandId}/bookings`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        ...validBookingPayload(title, contactId),
+        contact_id: '00000000-0000-7000-8000-000000000000',
+      })
+      .expect(404);
+
+    const booking = await findBookingByTitle(title);
+    expect(booking).toBeNull();
+  });
+
+  it('should return 404 and not persist when contact_id belongs to another user', async () => {
+    const otherUser = await registerAndLogin();
+    const otherUserContactId = await createContact(otherUser.accessToken);
+    const title = uniqueTitle();
+
+    await request(app.getHttpServer())
+      .post(`/bands/${bandId}/bookings`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        ...validBookingPayload(title, contactId),
+        contact_id: otherUserContactId,
+      })
+      .expect(404);
+
+    const booking = await findBookingByTitle(title);
+    expect(booking).toBeNull();
   });
 
   it('should return 422 when fee is negative', async () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...validBookingPayload(uniqueTitle()), fee: -1 })
+      .send({ ...validBookingPayload(uniqueTitle(), contactId), fee: -1 })
       .expect(422);
   });
 
@@ -275,7 +344,10 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...validBookingPayload(uniqueTitle()), fee: 10000000000 })
+      .send({
+        ...validBookingPayload(uniqueTitle(), contactId),
+        fee: 10000000000,
+      })
       .expect(422);
   });
 
@@ -283,7 +355,10 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...validBookingPayload(uniqueTitle()), fee: 800.999 })
+      .send({
+        ...validBookingPayload(uniqueTitle(), contactId),
+        fee: 800.999,
+      })
       .expect(422);
   });
 
@@ -291,7 +366,10 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...validBookingPayload(uniqueTitle()), link: 'not-a-url' })
+      .send({
+        ...validBookingPayload(uniqueTitle(), contactId),
+        link: 'not-a-url',
+      })
       .expect(422);
   });
 
@@ -300,7 +378,10 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...validBookingPayload(title), status: 'Confirmed' })
+      .send({
+        ...validBookingPayload(title, contactId),
+        status: 'Confirmed',
+      })
       .expect(201);
 
     const booking = await findBookingByTitle(title);
@@ -314,7 +395,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        ...validBookingPayload(title),
+        ...validBookingPayload(title, contactId),
         date,
         start_time: '12:00',
       })
@@ -331,7 +412,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        ...validBookingPayload(title),
+        ...validBookingPayload(title, contactId),
         date,
         start_time,
       })
@@ -348,7 +429,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        ...validBookingPayload(title),
+        ...validBookingPayload(title, contactId),
         date,
         start_time,
       })
@@ -362,7 +443,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post('/bands/not-a-uuid/bookings')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(validBookingPayload(uniqueTitle()))
+      .send(validBookingPayload(uniqueTitle(), contactId))
       .expect(422);
   });
 
@@ -370,7 +451,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post('/bands/00000000-0000-7000-8000-000000000000/bookings')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(validBookingPayload(uniqueTitle()))
+      .send(validBookingPayload(uniqueTitle(), contactId))
       .expect(404);
   });
 
@@ -379,7 +460,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${member.accessToken}`)
-      .send(validBookingPayload(uniqueTitle()))
+      .send(validBookingPayload(uniqueTitle(), contactId))
       .expect(403);
 
     const dataSource = app.get<DataSource>(getDataSourceToken());
@@ -390,7 +471,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${member.accessToken}`)
-      .send(validBookingPayload(uniqueTitle()))
+      .send(validBookingPayload(uniqueTitle(), contactId))
       .expect(404);
   });
 
@@ -400,14 +481,14 @@ describe('POST /bands/:id/bookings (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${outsider.accessToken}`)
-      .send(validBookingPayload(uniqueTitle()))
+      .send(validBookingPayload(uniqueTitle(), contactId))
       .expect(403);
   });
 
   it('should return 401 when no token is provided', async () => {
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
-      .send(validBookingPayload(uniqueTitle()))
+      .send(validBookingPayload(uniqueTitle(), contactId))
       .expect(401);
   });
 });

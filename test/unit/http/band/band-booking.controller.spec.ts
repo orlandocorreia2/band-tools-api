@@ -5,16 +5,16 @@ import { FindIdParamDto } from '@shared/commons/dtos/find-id-param.dto';
 
 const makeDto = (): CreateBandBookingDto => ({
   title: 'Show Bar do Zé',
-  focal_point_name: 'Maria Souza',
-  phone: '11987654321',
+  contact_id: 'contact-uuid',
   date: new Date('2026-09-12'),
   start_time: '22:00',
   duration: '1 hora',
-  address: 'Rua das Flores, 123 - São Paulo/SP',
   fee: 800,
 });
 
 const makeParams = (id = 'band-uuid'): FindIdParamDto => ({ id });
+
+const makeRequest = (userId = 'user-uuid') => ({ user: { id: userId } });
 
 describe('BandBookingController', () => {
   let controller: BandBookingController;
@@ -30,18 +30,27 @@ describe('BandBookingController', () => {
   });
 
   describe('create', () => {
-    it('should call useCase.execute with the params.id and dto', async () => {
+    it('should call useCase.execute with params.id, the authenticated userId and dto', async () => {
       const dto = makeDto();
       const params = makeParams();
+      const request = makeRequest();
 
-      await controller.create(params, dto);
+      await controller.create(params, dto, request);
 
       expect(mockCreateUseCase.execute).toHaveBeenCalledTimes(1);
-      expect(mockCreateUseCase.execute).toHaveBeenCalledWith(params.id, dto);
+      expect(mockCreateUseCase.execute).toHaveBeenCalledWith(
+        params.id,
+        request.user.id,
+        dto,
+      );
     });
 
     it('should return void (HTTP 201 with no body)', async () => {
-      const result = await controller.create(makeParams(), makeDto());
+      const result = await controller.create(
+        makeParams(),
+        makeDto(),
+        makeRequest(),
+      );
 
       expect(result).toBeUndefined();
     });

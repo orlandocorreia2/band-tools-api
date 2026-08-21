@@ -35,11 +35,9 @@ export class BandBookingTypeormEntity {
   @Column({ type: 'varchar' })
   title: string;
 
-  @Column({ type: 'varchar' })
-  focal_point_name: string;
-
-  @Column({ type: 'varchar', length: 11 })
-  phone: string;
+  @Index()
+  @Column({ type: 'uuid' })
+  contact_id: string;
 
   @Column({ type: 'date', transformer: dateColumnTransformer })
   date: Date;
@@ -49,9 +47,6 @@ export class BandBookingTypeormEntity {
 
   @Column({ type: 'varchar' })
   duration: string;
-
-  @Column({ type: 'varchar' })
-  address: string;
 
   @Column({
     type: 'decimal',

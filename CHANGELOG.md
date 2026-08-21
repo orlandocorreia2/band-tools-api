@@ -2,6 +2,20 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.16.0] - 2026-08-21
+
+#### Feat
+
+- `POST /bands/:id/bookings` passa a receber `contact_id` (UUID de um contato já cadastrado em `POST /users/contacts`) em vez de duplicar `focal_point_name`/`phone`/`address` como campos próprios do agendamento
+- Migration alterando `band_bookings`: remove as colunas `focal_point_name`, `phone` e `address`; adiciona `contact_id uuid NOT NULL` com índice dedicado e foreign key para `user_contacts.id` (`ON DELETE RESTRICT`, para não deixar agendamentos com referência órfã caso uma futura feature de exclusão de contato seja implementada)
+- `IContactRepository` ganha `findByIdAndUserId(id, userId)`, implementado em `ContactRepository` via `findOneBy({ id, user_id })`
+- `CreateBandBookingUseCase` passa a receber o `userId` autenticado e valida, antes de persistir, que o `contact_id` informado corresponde a um contato existente e pertencente a esse usuário; contato inexistente ou pertencente a outro usuário retorna HTTP 404, sem revelar se o `contact_id` corresponde a um contato de outra pessoa (evita IDOR)
+- Testes unitários com 100% de cobertura e testes e2e cobrindo criação com contato válido, `contact_id` ausente/em formato inválido (422), contato inexistente (404) e contato de outro usuário (404)
+
+#### Breaking
+
+- `POST /bands/:id/bookings` não aceita mais `focal_point_name`, `phone` nem `address` no corpo da requisição; clientes devem cadastrar o contato via `POST /users/contacts` e enviar o `contact_id` retornado
+
 ### [Version - 0.15.0] - 2026-08-21
 
 #### Feat
