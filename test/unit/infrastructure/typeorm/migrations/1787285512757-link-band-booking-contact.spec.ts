@@ -52,9 +52,9 @@ describe('LinkBandBookingContact1787285512757', () => {
       const [table, column] = queryRunner.addColumn.mock.calls[0];
       expect(table).toBe('band_bookings');
       expect(column).toBeInstanceOf(TableColumn);
-      expect((column as TableColumn).name).toBe('contact_id');
-      expect((column as TableColumn).type).toBe('uuid');
-      expect((column as TableColumn).isNullable).toBe(false);
+      expect(column.name).toBe('contact_id');
+      expect(column.type).toBe('uuid');
+      expect(column.isNullable).toBe(false);
     });
 
     it('should create an index on contact_id', async () => {
@@ -63,7 +63,7 @@ describe('LinkBandBookingContact1787285512757', () => {
       const [table, index] = queryRunner.createIndex.mock.calls[0];
       expect(table).toBe('band_bookings');
       expect(index).toBeInstanceOf(TableIndex);
-      expect((index as TableIndex).columnNames).toEqual(['contact_id']);
+      expect(index.columnNames).toEqual(['contact_id']);
     });
 
     it('should create a foreign key to user_contacts with RESTRICT on delete', async () => {
@@ -72,16 +72,10 @@ describe('LinkBandBookingContact1787285512757', () => {
       const [table, foreignKey] = queryRunner.createForeignKey.mock.calls[0];
       expect(table).toBe('band_bookings');
       expect(foreignKey).toBeInstanceOf(TableForeignKey);
-      expect((foreignKey as TableForeignKey).columnNames).toEqual([
-        'contact_id',
-      ]);
-      expect((foreignKey as TableForeignKey).referencedTableName).toBe(
-        'user_contacts',
-      );
-      expect((foreignKey as TableForeignKey).referencedColumnNames).toEqual([
-        'id',
-      ]);
-      expect((foreignKey as TableForeignKey).onDelete).toBe('RESTRICT');
+      expect(foreignKey.columnNames).toEqual(['contact_id']);
+      expect(foreignKey.referencedTableName).toBe('user_contacts');
+      expect(foreignKey.referencedColumnNames).toEqual(['id']);
+      expect(foreignKey.onDelete).toBe('RESTRICT');
     });
   });
 
@@ -108,14 +102,12 @@ describe('LinkBandBookingContact1787285512757', () => {
 
       const [table, columns] = queryRunner.addColumns.mock.calls[0];
       expect(table).toBe('band_bookings');
-      const names = (columns as TableColumn[]).map((c) => c.name);
+      const names = columns.map((c) => c.name);
       expect(names).toEqual(['focal_point_name', 'phone', 'address']);
-      (columns as TableColumn[]).forEach((column) => {
+      columns.forEach((column) => {
         expect(column.isNullable).toBe(true);
       });
-      const phoneColumn = (columns as TableColumn[]).find(
-        (c) => c.name === 'phone',
-      );
+      const phoneColumn = columns.find((c) => c.name === 'phone');
       expect(phoneColumn?.length).toBe('11');
     });
   });

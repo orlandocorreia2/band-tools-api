@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BandSetlistSongEntity } from '@domain/entities/band/band-setlist-song.entity';
 import { BandSongEntity } from '@domain/entities/band/band-song.entity';
 
@@ -23,6 +23,27 @@ export class SetlistSongResponseDto {
   @ApiProperty({ example: 'Come As You Are' })
   readonly title: string;
 
+  @ApiPropertyOptional({ example: 'Drop D', nullable: true })
+  readonly tuning: string | null;
+
+  @ApiPropertyOptional({ example: 'E Minor', nullable: true })
+  readonly tonality: string | null;
+
+  @ApiPropertyOptional({ example: 120, nullable: true })
+  readonly bpm: number | null;
+
+  @ApiPropertyOptional({ example: 219, nullable: true })
+  readonly duration: number | null;
+
+  @ApiPropertyOptional({ example: 'Letra da música...', nullable: true })
+  readonly lyrics: string | null;
+
+  @ApiPropertyOptional({
+    example: 'Tocar mais devagar no refrão',
+    nullable: true,
+  })
+  readonly notes: string | null;
+
   @ApiProperty({ example: '2026-08-03T12:00:00.000Z' })
   readonly created_at: Date;
 
@@ -35,6 +56,12 @@ export class SetlistSongResponseDto {
     this.band_song_id = setlistSong.bandSetlistSong.band_song_id;
     this.position = setlistSong.bandSetlistSong.position;
     this.title = setlistSong.bandSong.title;
+    this.tuning = setlistSong.bandSong.tuning ?? null;
+    this.tonality = setlistSong.bandSong.tonality ?? null;
+    this.bpm = setlistSong.bandSong.bpm ?? null;
+    this.duration = setlistSong.bandSong.duration ?? null;
+    this.lyrics = setlistSong.bandSong.lyrics ?? null;
+    this.notes = setlistSong.bandSong.notes ?? null;
     this.created_at = setlistSong.bandSetlistSong.created_at;
     this.updated_at = setlistSong.bandSetlistSong.updated_at;
   }

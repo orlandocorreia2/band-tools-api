@@ -2,6 +2,17 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.17.0] - 2026-09-28
+
+#### Feat
+
+- `GET /bands/:id/setlists/:setlistId/songs` passa a retornar, em cada item, os detalhes da música vindos de `band_songs` além do `title`: `tuning`, `tonality`, `bpm`, `duration`, `lyrics` e `notes`, deixando o setlist autossuficiente para uso em ensaios e shows sem precisar cruzar com `GET /bands/:id/songs`
+- Os novos campos seguem a projeção plana já usada no item (sem aninhar um objeto `band_song`) e estão sempre presentes na resposta: quando não preenchidos na música, são retornados como `null`, mantendo um contrato estável para os clientes
+- `band_id`, `created_at` e `updated_at` da música não são expostos: `band_id` já é o `:id` da rota, e `created_at`/`updated_at` do item continuam sendo as datas do vínculo em `band_setlist_songs`
+- `SetlistSongResponseDto` documenta os seis campos no Swagger como `nullable`; nenhuma alteração de use case, repositório ou schema (sem migration)
+- Mudança aditiva, sem breaking change: nenhum campo existente foi removido ou renomeado
+- Testes unitários com 100% de cobertura do DTO (músicas com e sem detalhes preenchidos) e testes e2e cobrindo música com todos os detalhes, música apenas com `title` (campos `null`), ausência de `band_id` e datas pertencentes ao vínculo
+
 ### [Version - 0.16.0] - 2026-08-21
 
 #### Feat

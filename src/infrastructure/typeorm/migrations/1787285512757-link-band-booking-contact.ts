@@ -6,9 +6,7 @@ import {
   TableIndex,
 } from 'typeorm';
 
-export class LinkBandBookingContact1787285512757
-  implements MigrationInterface
-{
+export class LinkBandBookingContact1787285512757 implements MigrationInterface {
   private readonly tableName = 'band_bookings';
   private readonly referencedTableName = 'user_contacts';
   private readonly foreignKeyName = 'FK_band_bookings_contact_id';

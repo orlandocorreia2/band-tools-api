@@ -9,6 +9,7 @@ import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.en
 import { BandTypeormEntity } from '@infrastructure/entities/band/band-typeorm.entity';
 import { BandSetlistTypeormEntity } from '@infrastructure/entities/band/band-setlist-typeorm.entity';
 import { BandSongTypeormEntity } from '@infrastructure/entities/band/band-song-typeorm.entity';
+import { BandSetlistSongTypeormEntity } from '@infrastructure/entities/band/band-setlist-song-typeorm.entity';
 
 const uniqueSuffix = () =>
   `${Date.now()}.${Math.random().toString(36).slice(2)}`;
@@ -42,12 +43,50 @@ const validSetlistPayload = (name: string) => ({ name });
 
 const uniqueSongTitle = () => `Come As You Are ${uniqueSuffix()}`;
 
-const validSongPayload = (title: string) => ({ title });
+type SongDetails = {
+  tuning?: string;
+  tonality?: string;
+  bpm?: number;
+  duration?: number;
+  lyrics?: string;
+  notes?: string;
+};
+
+const validSongPayload = (title: string, details: SongDetails = {}) => ({
+  title,
+  ...details,
+});
+
+const songDetails: SongDetails = {
+  tuning: 'Drop D',
+  tonality: 'E Minor',
+  bpm: 120,
+  duration: 219,
+  lyrics: 'Letra da música...',
+  notes: 'Tocar mais devagar no refrão',
+};
+
+const emptySongDetails = {
+  tuning: null,
+  tonality: null,
+  bpm: null,
+  duration: null,
+  lyrics: null,
+  notes: null,
+};
 
 const validAddSongPayload = (bandSongId: string, position: number) => ({
   bandSongId,
   position,
 });
+
+type SetlistSongItem = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type ListSetlistSongsBody = { data: SetlistSongItem[] };
 
 const decodeUserIdFromToken = (token: string): string => {
   const [, payload] = token.split('.');
@@ -76,7 +115,9 @@ describe('GET /bands/:id/setlists/:setlistId/songs (e2e)', () => {
       .send({ email: userPayload.email, password: userPayload.password })
       .expect(200);
 
-    const token: string = loginResponse.body.accessToken;
+    const { accessToken: token } = loginResponse.body as {
+      accessToken: string;
+    };
     return { accessToken: token, userId: decodeUserIdFromToken(token) };
   };
 
@@ -114,12 +155,13 @@ describe('GET /bands/:id/setlists/:setlistId/songs (e2e)', () => {
   const createSong = async (
     accessToken: string,
     bandId: string,
+    details: SongDetails = {},
   ): Promise<{ id: string; title: string }> => {
     const title = uniqueSongTitle();
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/songs`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(validSongPayload(title))
+      .send(validSongPayload(title, details))
       .expect(201);
 
     const song = await dataSource
@@ -187,22 +229,57 @@ describe('GET /bands/:id/setlists/:setlistId/songs (e2e)', () => {
       .get(`/bands/${bandId}/setlists/${setlistId}/songs`)
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .expect(200);
+    const body = response.body as ListSetlistSongsBody;
 
-    expect(response.body.data).toHaveLength(2);
-    expect(response.body.data[0]).toMatchObject({
+    expect(body.data).toHaveLength(2);
+    expect(body.data[0]).toMatchObject({
       band_setlist_id: setlistId,
       band_song_id: firstSong.id,
       position: 1,
       title: firstSong.title,
+      ...emptySongDetails,
     });
-    expect(response.body.data[0].id).toEqual(expect.any(String));
-    expect(response.body.data[0].created_at).toBeDefined();
-    expect(response.body.data[0].updated_at).toBeDefined();
-    expect(response.body.data[1]).toMatchObject({
+    expect(body.data[0].id).toEqual(expect.any(String));
+    expect(body.data[0]).not.toHaveProperty('band_id');
+    expect(body.data[1]).toMatchObject({
       band_setlist_id: setlistId,
       band_song_id: secondSong.id,
       position: 2,
       title: secondSong.title,
+      ...emptySongDetails,
+    });
+
+    const setlistSong = await dataSource
+      .getRepository(BandSetlistSongTypeormEntity)
+      .findOneBy({ id: body.data[0].id });
+    expect(body.data[0].created_at).toEqual(
+      setlistSong.created_at.toISOString(),
+    );
+    expect(body.data[0].updated_at).toEqual(
+      setlistSong.updated_at.toISOString(),
+    );
+  });
+
+  it('should return 200 with the song details of each setlist song', async () => {
+    const owner = await registerAndLogin();
+    const bandId = await createBand(owner.accessToken);
+    const setlistId = await createSetlist(owner.accessToken, bandId);
+    const song = await createSong(owner.accessToken, bandId, songDetails);
+
+    await addSongToSetlist(owner.accessToken, bandId, setlistId, song.id, 1);
+
+    const response = await request(app.getHttpServer())
+      .get(`/bands/${bandId}/setlists/${setlistId}/songs`)
+      .set('Authorization', `Bearer ${owner.accessToken}`)
+      .expect(200);
+    const body = response.body as ListSetlistSongsBody;
+
+    expect(body.data).toHaveLength(1);
+    expect(body.data[0]).toMatchObject({
+      band_song_id: song.id,
+      position: 1,
+      title: song.title,
+      ...songDetails,
     });
   });
 
@@ -215,8 +292,9 @@ describe('GET /bands/:id/setlists/:setlistId/songs (e2e)', () => {
       .get(`/bands/${bandId}/setlists/${setlistId}/songs`)
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .expect(200);
+    const body = response.body as ListSetlistSongsBody;
 
-    expect(response.body.data).toEqual([]);
+    expect(body.data).toEqual([]);
   });
 
   it('should return 404 when the band does not exist', async () => {

@@ -204,18 +204,18 @@ describe('CreateBandBookingUseCase', () => {
     it('should throw ApplicationNotFoundException when the contact does not exist', async () => {
       contactRepository.findByIdAndUserId.mockResolvedValueOnce(null);
 
-      await expect(
-        useCase.execute(bandId, userId, makeDto()),
-      ).rejects.toThrow(ApplicationNotFoundException);
+      await expect(useCase.execute(bandId, userId, makeDto())).rejects.toThrow(
+        ApplicationNotFoundException,
+      );
       expect(bandBookingRepository.save).not.toHaveBeenCalled();
     });
 
     it('should throw ApplicationNotFoundException when the contact belongs to another user', async () => {
       contactRepository.findByIdAndUserId.mockResolvedValueOnce(null);
 
-      await expect(
-        useCase.execute(bandId, userId, makeDto()),
-      ).rejects.toThrow(ApplicationNotFoundException);
+      await expect(useCase.execute(bandId, userId, makeDto())).rejects.toThrow(
+        ApplicationNotFoundException,
+      );
       expect(bandBookingRepository.save).not.toHaveBeenCalled();
     });
 

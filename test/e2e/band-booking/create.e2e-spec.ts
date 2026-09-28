@@ -265,10 +265,7 @@ describe('POST /bands/:id/bookings (e2e)', () => {
   });
 
   it('should return 422 when title is missing', async () => {
-    const { title, ...rest } = validBookingPayload(
-      uniqueTitle(),
-      contactId,
-    );
+    const { title, ...rest } = validBookingPayload(uniqueTitle(), contactId);
     await request(app.getHttpServer())
       .post(`/bands/${bandId}/bookings`)
       .set('Authorization', `Bearer ${accessToken}`)

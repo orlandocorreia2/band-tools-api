@@ -18,9 +18,49 @@ const makeBandSong = (): BandSongEntity =>
     title: 'Come As You Are',
   }) as BandSongEntity;
 
+const makeDetailedBandSong = (): BandSongEntity => ({
+  id: 'song-uuid',
+  band_id: 'band-uuid',
+  title: 'Come As You Are',
+  tuning: 'Drop D',
+  tonality: 'E Minor',
+  bpm: 120,
+  duration: 219,
+  lyrics: 'Letra da música...',
+  notes: 'Tocar mais devagar no refrão',
+  created_at: new Date('2026-07-01T12:00:00.000Z'),
+  updated_at: new Date('2026-07-01T12:00:00.000Z'),
+});
+
 describe('SetlistSongResponseDto', () => {
   describe('fromEntity', () => {
-    it('should map all fields from the link and the song title', () => {
+    it('should map the link fields and the song details', () => {
+      const bandSetlistSong = makeBandSetlistSong();
+      const bandSong = makeDetailedBandSong();
+
+      const dto = SetlistSongResponseDto.fromEntity({
+        bandSetlistSong,
+        bandSong,
+      });
+
+      expect(dto).toEqual({
+        id: bandSetlistSong.id,
+        band_setlist_id: bandSetlistSong.band_setlist_id,
+        band_song_id: bandSetlistSong.band_song_id,
+        position: bandSetlistSong.position,
+        title: bandSong.title,
+        tuning: bandSong.tuning,
+        tonality: bandSong.tonality,
+        bpm: bandSong.bpm,
+        duration: bandSong.duration,
+        lyrics: bandSong.lyrics,
+        notes: bandSong.notes,
+        created_at: bandSetlistSong.created_at,
+        updated_at: bandSetlistSong.updated_at,
+      });
+    });
+
+    it('should map missing song details to null', () => {
       const bandSetlistSong = makeBandSetlistSong();
       const bandSong = makeBandSong();
 
@@ -35,6 +75,12 @@ describe('SetlistSongResponseDto', () => {
         band_song_id: bandSetlistSong.band_song_id,
         position: bandSetlistSong.position,
         title: bandSong.title,
+        tuning: null,
+        tonality: null,
+        bpm: null,
+        duration: null,
+        lyrics: null,
+        notes: null,
         created_at: bandSetlistSong.created_at,
         updated_at: bandSetlistSong.updated_at,
       });
