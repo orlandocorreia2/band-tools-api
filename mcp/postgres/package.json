@@ -1,0 +1,33 @@
+{
+  "name": "mcp-postgres-docker",
+  "version": "1.0.0",
+  "description": "MCP server local para backup e restore de PostgreSQL rodando em Docker",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-postgres-docker": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "typecheck": "tsc -p . --noEmit",
+    "start": "node dist/index.js",
+    "audit": "npm audit --omit=dev",
+    "claude-mcp:add": "claude mcp add postgres-backup --scope user -e PG_CONTAINER=band-tools-postgres -e PG_USER=band_tools -e PG_DATABASE=band_tools_db -e ALLOWED_DIRS=/mnt/c/backups/postgres -- node \"$PWD/dist/index.js\"",
+    "db:backup": "claude mcp get postgres-backup",
+    "db:restore": "claude mcp get postgres-restore"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.31.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "~6.0.3"
+  }
+}

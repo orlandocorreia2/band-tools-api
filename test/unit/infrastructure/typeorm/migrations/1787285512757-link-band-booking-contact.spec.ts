@@ -75,7 +75,7 @@ describe('LinkBandBookingContact1787285512757', () => {
       expect(foreignKey.columnNames).toEqual(['contact_id']);
       expect(foreignKey.referencedTableName).toBe('user_contacts');
       expect(foreignKey.referencedColumnNames).toEqual(['id']);
-      expect(foreignKey.onDelete).toBe('RESTRICT');
+      expect(foreignKey.onDelete).toBe('CASCADE');
     });
   });
 

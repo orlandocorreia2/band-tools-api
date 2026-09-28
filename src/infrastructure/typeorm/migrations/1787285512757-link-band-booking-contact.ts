@@ -40,7 +40,7 @@ export class LinkBandBookingContact1787285512757 implements MigrationInterface {
         columnNames: ['contact_id'],
         referencedTableName: this.referencedTableName,
         referencedColumnNames: ['id'],
-        onDelete: 'RESTRICT',
+        onDelete: 'CASCADE',
       }),
     );
   }
