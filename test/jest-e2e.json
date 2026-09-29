@@ -3,6 +3,7 @@
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
+  "testTimeout": 30000,
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
@@ -14,5 +15,10 @@
     "^@http/(.*)$": "<rootDir>/../src/http/$1",
     "^@package\\.json$": "<rootDir>/../package.json"
   },
-  "setupFiles": ["<rootDir>/setEnvVars.js"]
+  "globalSetup": "<rootDir>/e2e/support/global-setup.ts",
+  "globalTeardown": "<rootDir>/e2e/support/global-teardown.ts",
+  "setupFiles": [
+    "<rootDir>/setEnvVars.js",
+    "<rootDir>/e2e/support/select-worker-database.ts"
+  ]
 }

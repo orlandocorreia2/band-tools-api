@@ -1,11 +1,14 @@
 {
   "name": "band-tools-api",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "title": "Band Tools API",
   "description": "API designed for managing band information.",
   "author": "Orlando Nascimento",
   "private": true,
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.22.0"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -19,6 +22,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:component": "jest --config ./test/jest-component.json",
     "prepare": "husky",
     "docker:rm": "docker compose -f docker-compose.dev.yml up -d && docker rm $(docker ps -aq) -f",
     "docker:clear": "docker system prune -a --volumes -f && docker volume rm $(docker volume ls -q) && docker network prune -f",
@@ -57,6 +61,7 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@testcontainers/postgresql": "^12.2.0",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",

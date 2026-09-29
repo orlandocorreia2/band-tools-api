@@ -24,6 +24,7 @@ src/
 ├── application/      # Use cases that orchestrate business logic
 ├── infrastructure/   # Concrete implementations: TypeORM entities, repositories, migrations
 │   ├── entities/     # TypeORM entities (suffixed BandTypeormEntity to avoid name clash)
+│   ├── persistence/  # PersistenceModule — single wiring point for all repositories
 │   ├── repository/   # IBandRepository implementations
 │   └── typeorm/      # DataSource, TypeormModule, migrations
 ├── http/             # Controllers, middlewares, NestJS HTTP layer
@@ -102,8 +103,16 @@ Managed with `dotenv` + `@nestjs/config`. All variables are validated at startup
 
 ### Testing
 - **Unit tests:** `test/unit/` — 100% coverage required (statements, branches, functions, lines)
-- **e2e tests:** `test/` (`*.e2e-spec.ts`) — uses Supertest against a real NestJS app
-- Jest config: `jest.config.ts` (unit), `test/jest-e2e.json` (e2e)
+- **e2e tests:** `test/e2e/` (`*.e2e-spec.ts`) — Supertest against the real NestJS app and a **real, ephemeral PostgreSQL** (Testcontainers, `postgres:16-alpine`). Source of truth for queries, constraints and migrations.
+  - **Requires Docker running** (Docker Desktop with WSL integration or Docker Engine in WSL) and Node `>= 22.22` (see `.nvmrc`)
+  - `test/e2e/support/global-setup.ts` starts the container with a random password, runs the versioned migrations on a template database and clones one database per Jest worker (`band_tools_test_<JEST_WORKER_ID>`); `global-teardown.ts` destroys it
+  - e2e **never** connects to the dev database (`band_tools_db`)
+  - Every suite must call `await truncateAllTables(app.get(getDataSourceToken()))` in `afterAll` before `app.close()` (`test/e2e/support/database-cleaner.ts`; refuses to run on databases outside the `band_tools_test_` prefix)
+- **Component tests:** `test/component/` (`*.component-spec.ts`) — real `AppModule` (controllers, guards, pipes, filters) with `InfrastructureModule` and `PersistenceModule` overridden by in-memory repositories. No Docker, no database. Fast feedback for HTTP contracts, validation and AuthN/AuthZ; **does not** replace e2e
+  - Bootstrap with `createComponentApp()` and call `store.clearAll()` in `beforeEach` (`test/component/support/`)
+  - In-memory repositories implement the `src/domain/repositories/` interfaces and are registered with the concrete repository classes as DI tokens
+- **Repositories wiring:** all TypeORM repositories are declared once in `src/infrastructure/persistence/persistence.module.ts`; factory modules and `HttpModule` import `PersistenceModule` instead of declaring repositories
+- Jest config: `jest.config.ts` (unit), `test/jest-e2e.json` (e2e), `test/jest-component.json` (component)
 - `emitDecoratorMetadata: false` in the Jest tsconfig — barrel files that only re-export types need a side-effect import (`import '@module/interfaces'`) in a dedicated spec to be counted in coverage
 
 ## Useful Commands
@@ -114,7 +123,8 @@ npm run start:dev
 
 # Tests
 npm run test           # unit tests
-npm run test:e2e       # e2e tests
+npm run test:e2e       # e2e tests (requires Docker — ephemeral PostgreSQL via Testcontainers)
+npm run test:component # component tests (in-memory repositories, no Docker)
 npm run test:cov       # unit tests with coverage
 
 # Migrations

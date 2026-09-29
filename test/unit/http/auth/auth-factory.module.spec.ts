@@ -20,8 +20,8 @@ jest.mock('@usecase/auth/login.usecase', () => ({
   LoginUseCase: jest.fn().mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
-jest.mock('@infrastructure/entities/user/user-typeorm.entity', () => ({
-  UserTypeormEntity: class UserTypeormEntity {},
+jest.mock('@infrastructure/persistence/persistence.module', () => ({
+  PersistenceModule: class PersistenceModule {},
 }));
 
 jest.mock('@infrastructure/repository/user/user.repository', () => ({
@@ -35,6 +35,8 @@ jest.mock('@infrastructure/services/bcrypt-password-hasher', () => ({
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AuthFactoryModule } from '@http/auth/auth-factory.module';
 import { LoginUseCase } from '@usecase/auth/login.usecase';
+import { PersistenceModule } from '@infrastructure/persistence/persistence.module';
+import { UserRepository as UserRepositoryToken } from '@infrastructure/repository/user/user.repository';
 import type { UserRepository } from '@infrastructure/repository/user/user.repository';
 import type { BcryptPasswordHasher } from '@infrastructure/services/bcrypt-password-hasher';
 
@@ -54,6 +56,13 @@ describe('AuthFactoryModule', () => {
     expect(module.module).toBe(AuthFactoryModule);
     expect(module.providers).toBeDefined();
     expect(module.exports).toContain(AuthFactoryModule.LOGIN_USE_CASE);
+  });
+
+  it('should import PersistenceModule instead of declaring UserRepository locally', () => {
+    const module = AuthFactoryModule.forRoot();
+
+    expect(module.imports).toContain(PersistenceModule);
+    expect(module.providers).not.toContain(UserRepositoryToken);
   });
 
   it('should register JwtModule asynchronously', () => {

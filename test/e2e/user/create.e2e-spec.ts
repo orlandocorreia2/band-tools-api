@@ -1,8 +1,10 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getDataSourceToken } from '@nestjs/typeorm';
 import request from 'supertest';
 import { BaseException } from '@shared/exceptions/base.exception';
 import { AppModule } from '../../../src/app.module';
+import { truncateAllTables } from '../support/database-cleaner';
 import { ExceptionTypeEnum } from '@shared/commons/enums';
 import { ExceptionFilterMiddleware } from '@http/middlewares/exception-filter.middleware';
 
@@ -52,6 +54,7 @@ describe('POST /users (e2e)', () => {
   });
 
   afterAll(async () => {
+    await truncateAllTables(app.get(getDataSourceToken()));
     await app.close();
   });
 

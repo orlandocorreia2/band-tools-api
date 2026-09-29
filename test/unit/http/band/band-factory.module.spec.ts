@@ -61,39 +61,8 @@ jest.mock('@usecase/band/create-band-booking.usecase', () => ({
     .mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
-jest.mock('@infrastructure/entities/band/band-typeorm.entity', () => ({
-  BandTypeormEntity: class BandTypeormEntity {},
-}));
-
-jest.mock('@infrastructure/entities/band/band-member-typeorm.entity', () => ({
-  BandMemberTypeormEntity: class BandMemberTypeormEntity {},
-}));
-
-jest.mock('@infrastructure/entities/user/user-typeorm.entity', () => ({
-  UserTypeormEntity: class UserTypeormEntity {},
-}));
-
-jest.mock('@infrastructure/entities/band/band-setlist-typeorm.entity', () => ({
-  BandSetlistTypeormEntity: class BandSetlistTypeormEntity {},
-}));
-
-jest.mock(
-  '@infrastructure/entities/band/band-setlist-song-typeorm.entity',
-  () => ({
-    BandSetlistSongTypeormEntity: class BandSetlistSongTypeormEntity {},
-  }),
-);
-
-jest.mock('@infrastructure/entities/band/band-song-typeorm.entity', () => ({
-  BandSongTypeormEntity: class BandSongTypeormEntity {},
-}));
-
-jest.mock('@infrastructure/entities/band/band-booking-typeorm.entity', () => ({
-  BandBookingTypeormEntity: class BandBookingTypeormEntity {},
-}));
-
-jest.mock('@infrastructure/entities/contact/contact-typeorm.entity', () => ({
-  ContactTypeormEntity: class ContactTypeormEntity {},
+jest.mock('@infrastructure/persistence/persistence.module', () => ({
+  PersistenceModule: class PersistenceModule {},
 }));
 
 jest.mock('@infrastructure/repository/band/band.repository', () => ({
@@ -141,15 +110,7 @@ import { ListSetlistSongsUseCase } from '@usecase/band/list-setlist-songs.usecas
 import { CreateBandSongUseCase } from '@usecase/band/create-band-song.usecase';
 import { ListBandSongsUseCase } from '@usecase/band/list-band-songs.usecase';
 import { CreateBandBookingUseCase } from '@usecase/band/create-band-booking.usecase';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { BandTypeormEntity } from '@infrastructure/entities/band/band-typeorm.entity';
-import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-member-typeorm.entity';
-import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.entity';
-import { BandSetlistTypeormEntity } from '@infrastructure/entities/band/band-setlist-typeorm.entity';
-import { BandSetlistSongTypeormEntity } from '@infrastructure/entities/band/band-setlist-song-typeorm.entity';
-import { BandSongTypeormEntity } from '@infrastructure/entities/band/band-song-typeorm.entity';
-import { BandBookingTypeormEntity } from '@infrastructure/entities/band/band-booking-typeorm.entity';
-import { ContactTypeormEntity } from '@infrastructure/entities/contact/contact-typeorm.entity';
+import { PersistenceModule } from '@infrastructure/persistence/persistence.module';
 import { BandMemberRepository } from '@infrastructure/repository/band/band-member.repository';
 import { UserRepository } from '@infrastructure/repository/user/user.repository';
 import { BandSetlistRepository } from '@infrastructure/repository/band/band-setlist.repository';
@@ -237,31 +198,22 @@ describe('BandFactoryModule', () => {
     );
   });
 
-  it('should register all TypeORM entities via TypeOrmModule.forFeature', () => {
-    BandFactoryModule.forRoot();
-
-    expect(TypeOrmModule.forFeature).toHaveBeenCalledWith([
-      BandTypeormEntity,
-      BandMemberTypeormEntity,
-      UserTypeormEntity,
-      BandSetlistTypeormEntity,
-      BandSetlistSongTypeormEntity,
-      BandSongTypeormEntity,
-      BandBookingTypeormEntity,
-      ContactTypeormEntity,
-    ]);
-  });
-
-  it('should register all repositories as providers', () => {
+  it('should import PersistenceModule to obtain the repositories', () => {
     const module = BandFactoryModule.forRoot();
 
-    expect(module.providers).toContain(BandMemberRepository);
-    expect(module.providers).toContain(UserRepository);
-    expect(module.providers).toContain(BandSetlistRepository);
-    expect(module.providers).toContain(BandSetlistSongRepository);
-    expect(module.providers).toContain(BandSongRepository);
-    expect(module.providers).toContain(BandBookingRepository);
-    expect(module.providers).toContain(ContactRepository);
+    expect(module.imports).toEqual([PersistenceModule]);
+  });
+
+  it('should not declare repositories locally', () => {
+    const module = BandFactoryModule.forRoot();
+
+    expect(module.providers).not.toContain(BandMemberRepository);
+    expect(module.providers).not.toContain(UserRepository);
+    expect(module.providers).not.toContain(BandSetlistRepository);
+    expect(module.providers).not.toContain(BandSetlistSongRepository);
+    expect(module.providers).not.toContain(BandSongRepository);
+    expect(module.providers).not.toContain(BandBookingRepository);
+    expect(module.providers).not.toContain(ContactRepository);
   });
 
   it('should wire CreateBandUseCase with BandRepository and UserRepository via useFactory', () => {

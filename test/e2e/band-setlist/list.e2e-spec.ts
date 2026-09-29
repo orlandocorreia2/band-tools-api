@@ -4,6 +4,7 @@ import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
+import { truncateAllTables } from '../support/database-cleaner';
 import { ExceptionFilterMiddleware } from '@http/middlewares/exception-filter.middleware';
 import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.entity';
 import { BandTypeormEntity } from '@infrastructure/entities/band/band-typeorm.entity';
@@ -106,6 +107,7 @@ describe('GET /bands/:id/setlists (e2e)', () => {
   });
 
   afterAll(async () => {
+    await truncateAllTables(app.get(getDataSourceToken()));
     await app.close();
   });
 

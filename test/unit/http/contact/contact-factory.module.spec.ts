@@ -19,8 +19,8 @@ jest.mock('@usecase/contact/list-contacts-by-user.usecase', () => ({
     .mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
-jest.mock('@infrastructure/entities/contact/contact-typeorm.entity', () => ({
-  ContactTypeormEntity: class ContactTypeormEntity {},
+jest.mock('@infrastructure/persistence/persistence.module', () => ({
+  PersistenceModule: class PersistenceModule {},
 }));
 
 jest.mock('@infrastructure/repository/contact/contact.repository', () => ({
@@ -30,6 +30,8 @@ jest.mock('@infrastructure/repository/contact/contact.repository', () => ({
 import { ContactFactoryModule } from '@http/contact/contact-factory.module';
 import { CreateContactUseCase } from '@usecase/contact/create-contact.usecase';
 import { ListContactsByUserUseCase } from '@usecase/contact/list-contacts-by-user.usecase';
+import { PersistenceModule } from '@infrastructure/persistence/persistence.module';
+import { ContactRepository as ContactRepositoryToken } from '@infrastructure/repository/contact/contact.repository';
 import type { ContactRepository } from '@infrastructure/repository/contact/contact.repository';
 
 describe('ContactFactoryModule', () => {
@@ -61,6 +63,13 @@ describe('ContactFactoryModule', () => {
         ContactFactoryModule.LIST_CONTACTS_BY_USER_USE_CASE,
       ]),
     );
+  });
+
+  it('should import PersistenceModule instead of declaring ContactRepository locally', () => {
+    const module = ContactFactoryModule.forRoot();
+
+    expect(module.imports).toEqual([PersistenceModule]);
+    expect(module.providers).not.toContain(ContactRepositoryToken);
   });
 
   it('should wire CreateContactUseCase with ContactRepository via useFactory', () => {

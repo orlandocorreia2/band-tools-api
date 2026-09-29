@@ -4,6 +4,7 @@ import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
+import { truncateAllTables } from '../support/database-cleaner';
 import { ExceptionFilterMiddleware } from '@http/middlewares/exception-filter.middleware';
 import { ContactTypeormEntity } from '@infrastructure/entities/contact/contact-typeorm.entity';
 import { ExceptionTypeEnum } from '@shared/commons/enums/exception.enum';
@@ -95,6 +96,7 @@ describe('POST /users/contacts (e2e)', () => {
   });
 
   afterAll(async () => {
+    await truncateAllTables(app.get(getDataSourceToken()));
     await app.close();
   });
 

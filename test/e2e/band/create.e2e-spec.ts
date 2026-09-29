@@ -4,6 +4,7 @@ import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
+import { truncateAllTables } from '../support/database-cleaner';
 import { ExceptionFilterMiddleware } from '@http/middlewares/exception-filter.middleware';
 import { BandMemberTypeormEntity } from '@infrastructure/entities/band/band-member-typeorm.entity';
 import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.entity';
@@ -71,6 +72,7 @@ describe('POST /bands (e2e)', () => {
   });
 
   afterAll(async () => {
+    await truncateAllTables(app.get(getDataSourceToken()));
     await app.close();
   });
 

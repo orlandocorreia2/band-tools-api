@@ -1,9 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { CreateContactUseCase } from '@usecase/contact/create-contact.usecase';
 import { ListContactsByUserUseCase } from '@usecase/contact/list-contacts-by-user.usecase';
 import { ContactRepository } from '@infrastructure/repository/contact/contact.repository';
-import { ContactTypeormEntity } from '@infrastructure/entities/contact/contact-typeorm.entity';
+import { PersistenceModule } from '@infrastructure/persistence/persistence.module';
 
 @Module({})
 export class ContactFactoryModule {
@@ -13,9 +12,8 @@ export class ContactFactoryModule {
   static forRoot(): DynamicModule {
     return {
       module: ContactFactoryModule,
-      imports: [TypeOrmModule.forFeature([ContactTypeormEntity])],
+      imports: [PersistenceModule],
       providers: [
-        ContactRepository,
         {
           provide: ContactFactoryModule.CREATE_CONTACT_USE_CASE,
           inject: [ContactRepository],

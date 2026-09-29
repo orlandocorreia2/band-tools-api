@@ -1,7 +1,9 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getDataSourceToken } from '@nestjs/typeorm';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
+import { truncateAllTables } from '../support/database-cleaner';
 import { ExceptionFilterMiddleware } from '@http/middlewares/exception-filter.middleware';
 
 const uniqueSuffix = () =>
@@ -70,6 +72,7 @@ describe('GET /users/contacts (e2e)', () => {
   });
 
   afterAll(async () => {
+    await truncateAllTables(app.get(getDataSourceToken()));
     await app.close();
   });
 

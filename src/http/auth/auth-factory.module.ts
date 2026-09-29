@@ -1,9 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { LoginUseCase } from '@usecase/auth/login.usecase';
 import { UserRepository } from '@infrastructure/repository/user/user.repository';
-import { UserTypeormEntity } from '@infrastructure/entities/user/user-typeorm.entity';
+import { PersistenceModule } from '@infrastructure/persistence/persistence.module';
 import { BcryptPasswordHasher } from '@infrastructure/services/bcrypt-password-hasher';
 import { EnvConfigModule } from '@shared/config/env-config.module';
 import { jwtModuleAsyncOptions } from '@shared/config/jwt-module-options';
@@ -16,12 +15,11 @@ export class AuthFactoryModule {
     return {
       module: AuthFactoryModule,
       imports: [
-        TypeOrmModule.forFeature([UserTypeormEntity]),
+        PersistenceModule,
         EnvConfigModule,
         JwtModule.registerAsync(jwtModuleAsyncOptions),
       ],
       providers: [
-        UserRepository,
         BcryptPasswordHasher,
         {
           provide: AuthFactoryModule.LOGIN_USE_CASE,

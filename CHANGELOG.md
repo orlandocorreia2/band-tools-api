@@ -2,6 +2,23 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.18.0] - 2026-09-29
+
+#### Chore
+
+- Testes e2e passam a rodar contra um PostgreSQL real e efêmero via Testcontainers (`@testcontainers/postgresql`, imagem `postgres:16-alpine`, a mesma do `docker-compose.dev.yml`): o `globalSetup` sobe o container, roda as migrations versionadas em um banco template e clona um banco por worker do Jest (`band_tools_test_<JEST_WORKER_ID>`) via `CREATE DATABASE ... TEMPLATE`; o `globalTeardown` destrói o container
+- Os e2e deixam de ler e gravar no banco de desenvolvimento (`band_tools_db`), eliminando o acúmulo de dados de teste e o risco de manipular dados pessoais caso o banco de dev receba um dump (LGPD)
+- Credenciais do banco de teste efêmeras: a senha do container é gerada com `crypto.randomBytes` a cada execução; `test/setEnvVars.js` passa a usar `??=` nas variáveis `DB_*`, mantendo apenas placeholders para os testes unitários
+- Novo helper `truncateAllTables` (`TRUNCATE ... RESTART IDENTITY CASCADE`) executado no `afterAll` de todas as suites e2e, com trava que recusa rodar em bancos fora do prefixo `band_tools_test_`
+- Nova camada de testes de componente (`npm run test:component`, `test/component/**/*.component-spec.ts`): sobe o `AppModule` real (controllers, guards, pipes e filtros) com repositórios em memória que implementam as interfaces de `src/domain/repositories/`, sem banco e sem Docker, para feedback rápido de contratos HTTP, validação e AuthN/AuthZ; não substitui os e2e
+- Requisitos do ambiente de desenvolvimento: Node `>= 22.22` (`.nvmrc` atualizado para `v22.23.3` e `engines` declarado no `package.json`) e Docker em execução para `npm run test:e2e`; o `globalSetup` falha com mensagem explicativa quando o Node está abaixo da versão mínima ou o Docker não responde
+
+#### Refactor
+
+- Novo `PersistenceModule` (`src/infrastructure/persistence/`) como ponto único de wiring dos 8 repositórios TypeORM; `BandFactoryModule`, `UserFactoryModule`, `AuthFactoryModule`, `ContactFactoryModule` e `HttpModule` passam a importá-lo em vez de declarar repositórios e `TypeOrmModule.forFeature` localmente
+- As próprias classes de repositório continuam sendo os tokens de DI, sem alteração em use cases, controllers ou guards; nenhuma mudança de comportamento da API e nenhuma migration
+- Testes unitários com 100% de cobertura (`PersistenceModule` e factory modules atualizados), 133 cenários e2e passando no banco efêmero e testes de componente cobrindo `POST /bands` (201 com owner registrado, 401 sem token, 400 sem `name`) e a ausência de conexão com banco
+
 ### [Version - 0.17.0] - 2026-09-28
 
 #### Feat
