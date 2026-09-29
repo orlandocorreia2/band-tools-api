@@ -110,7 +110,7 @@ server.registerTool(
     description:
       `Exclui TODAS as tabelas de usuário (DROP TABLE ... CASCADE, em todos os schemas) do banco "${config.database}" ` +
       `no container "${config.container}". OPERAÇÃO DESTRUTIVA: views e FKs dependentes também caem. ` +
-      'Antes de excluir, gera um backup automático (se o backup falhar, nada é excluído). ' +
+      `Antes de excluir, gera um backup automático em ${SCRIPTS_DIR} (se o backup falhar, nada é excluído). ` +
       'Roda em uma transação única. Exige confirm_database igual ao nome do banco.',
     inputSchema: {
       confirm_database: z
@@ -119,18 +119,10 @@ server.registerTool(
         .describe(
           `Nome do banco digitado pelo usuário para confirmar ("${config.database}"). Peça ao usuário, não preencha sozinho.`,
         ),
-      backup_dir: z
-        .string()
-        .min(1)
-        .max(1024)
-        .optional()
-        .describe(
-          `Diretório do backup prévio (dentro de ALLOWED_DIRS). Padrão: ${config.allowedDirs[0] ?? '(nenhum)'}`,
-        ),
     },
     annotations: { destructiveHint: true },
   },
-  async ({ confirm_database, backup_dir }) => {
+  async ({ confirm_database }) => {
     try {
       if (confirm_database !== config.database) {
         throw new Error(
@@ -138,10 +130,7 @@ server.registerTool(
         );
       }
       // Fail secure: sem backup, sem DROP.
-      const dir = await resolveOutputDir(
-        backup_dir ?? config.allowedDirs[0] ?? '',
-        config.allowedDirs,
-      );
+      const dir = await resolveOutputDir(SCRIPTS_DIR, [SCRIPTS_DIR]);
       log(`backup prévio iniciado para ${config.database}`);
       const backup = await backupDatabase(config, dir);
       log(`exclusão de tabelas iniciada em ${config.database}`);

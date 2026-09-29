@@ -1,0 +1,121 @@
+{
+  "workbench.startupEditor": "none",
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.fontFamily": "Fira Code",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 18,
+  "editor.lineHeight": 24,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.rulers": [80, 120],
+  "emmet.triggerExpansionOnTab": true,
+  "editor.tabSize": 2,
+  "editor.parameterHints.enabled": false,
+  "editor.renderLineHighlight": "gutter",
+  "terminal.integrated.fontSize": 16,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmDelete": false,
+  "emmet.syntaxProfiles": {
+    "javascript": "jsx"
+  },
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "editor.suggestSelection": "first",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.renderWhitespace": "none",
+  "material-icon-theme.folders.associations": {
+    "infra": "app",
+    "entities": "class",
+    "schemas": "class",
+    "typeorm": "database",
+    "repositories": "mappings",
+    "http": "container",
+    "migrations": "tools",
+    "modules": "components",
+    "implementations": "core",
+    "dtos": "typescript",
+    "fakes": "mock",
+    "websockets": "pipe",
+    "Console": "command",
+    "Exceptions": "error",
+    "Support": "controller",
+    "Bootstrap": "app",
+    "socket": "node",
+    "storage": "server"
+  },
+  "git.autofetch": true,
+  "terminal.integrated.enableMultiLinePasteWarning": "never",
+  "prettier.tabWidth": 2,
+  "json.maxItemsComputed": 500000000,
+  "editor.foldingMaximumRegions": 10000,
+  "editor.formatOnSave": true,
+  "explorer.compactFolders": false,
+  "security.workspace.trust.untrustedFiles": "open",
+  "terminal.integrated.autoReplies": {},
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "remote.autoForwardPortsSource": "hybrid",
+  "extensions.ignoreRecommendations": true,
+  "[dockercompose]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    }
+  },
+  "editor.minimap.enabled": false,
+  "terminal.integrated.tabs.enabled": false,
+  "terminal.integrated.stickyScroll.enabled": false,
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.rulers": [80],
+    "editor.selectionHighlight": false,
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off"
+  },
+  "chat.viewSessions.enabled": false,
+  "chat.tools.terminal.autoApprove": {
+    "vendor/bin/phpunit": true,
+    "docker compose": true,
+    "/^perl -0pi -e \"s/throw new \\\\\\\\LogicException\\\\\\('Unreachable guard for static analyzers\\\\\\.'\\\\\\);/throw new \\\\\\\\LogicException\\(UNUSED_GUARD_MESSAGE\\);/g\" tests/Controller/SettingsControllerTest\\.php$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  },
+  "breadcrumbs.enabled": false,
+  "editor.stickyScroll.enabled": false,
+  "chat.disableAIFeatures": true,
+  "claudeCode.preferredLocation": "panel",
+  "security.allowedUNCHosts": ["wsl.localhost"],
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    },
+    "Command Prompt": {
+      "path": [
+        "${env:windir}\\Sysnative\\cmd.exe",
+        "${env:windir}\\System32\\cmd.exe"
+      ],
+      "args": [],
+      "icon": "terminal-cmd"
+    },
+    "Git Bash": {
+      "source": "Git Bash",
+      "icon": "terminal-git-bash"
+    },
+    "Ubuntu (WSL)": {
+      "path": "C:\\WINDOWS\\System32\\wsl.exe",
+      "args": ["-d", "Ubuntu"]
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
+  "workbench.colorTheme": "Dracula Theme Soft",
+  "claudeCode.hideOnboarding": true,
+  "git.ignoreMissingGitWarning": true
+}

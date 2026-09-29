@@ -81,8 +81,13 @@ Certifique-se de ter instalado:
 git clone https://github.com/orlandocorreia2/band-tools-api.git
 cd backend
 
-# 2. Instale as dependências
+# 2. Instalação
 npm install
+
+docker rm $(docker ps -aq) -f
+
+docker compose -f docker-compose.dev.yml up -d
+
 ```
 
 ---
@@ -149,18 +154,18 @@ http://localhost:3000/openapi
 
 ### Endpoints disponíveis
 
-| Método | Rota                                       | Autenticação | Descrição                                                |
-| ------ | ------------------------------------------- | ------------ | --------------------------------------------------------- |
-| GET    | `/health`                                   | -            | Verifica o status da aplicação                            |
-| POST   | `/users`                                    | -            | Cadastra um novo usuário                                  |
-| POST   | `/auth/login`                               | -            | Autentica um usuário e retorna um JWT                     |
-| POST   | `/bands`                                    | Bearer JWT   | Cadastra uma nova banda (o autor vira dono)                |
-| GET    | `/bands`                                    | Bearer JWT   | Lista as bandas do usuário autenticado                    |
-| POST   | `/bands/:id/songs`                          | Bearer JWT   | Cadastra uma música no repertório da banda                |
-| GET    | `/bands/:id/songs`                          | Bearer JWT   | Lista as músicas do repertório da banda                   |
-| POST   | `/bands/:id/setlists`                       | Bearer JWT   | Cadastra um setlist para a banda                           |
-| GET    | `/bands/:id/setlists`                       | Bearer JWT   | Lista os setlists da banda                                 |
-| POST   | `/bands/:id/setlists/:setlistId/songs`      | Bearer JWT   | Associa uma música do repertório a um setlist, com posição |
+| Método | Rota                                   | Autenticação | Descrição                                                  |
+| ------ | -------------------------------------- | ------------ | ---------------------------------------------------------- |
+| GET    | `/health`                              | -            | Verifica o status da aplicação                             |
+| POST   | `/users`                               | -            | Cadastra um novo usuário                                   |
+| POST   | `/auth/login`                          | -            | Autentica um usuário e retorna um JWT                      |
+| POST   | `/bands`                               | Bearer JWT   | Cadastra uma nova banda (o autor vira dono)                |
+| GET    | `/bands`                               | Bearer JWT   | Lista as bandas do usuário autenticado                     |
+| POST   | `/bands/:id/songs`                     | Bearer JWT   | Cadastra uma música no repertório da banda                 |
+| GET    | `/bands/:id/songs`                     | Bearer JWT   | Lista as músicas do repertório da banda                    |
+| POST   | `/bands/:id/setlists`                  | Bearer JWT   | Cadastra um setlist para a banda                           |
+| GET    | `/bands/:id/setlists`                  | Bearer JWT   | Lista os setlists da banda                                 |
+| POST   | `/bands/:id/setlists/:setlistId/songs` | Bearer JWT   | Associa uma música do repertório a um setlist, com posição |
 
 #### Exemplo de resposta — `GET /health`
 
@@ -284,20 +289,20 @@ O projeto utiliza aliases de caminho configurados no `tsconfig.json` para evitar
 
 ## Scripts disponíveis
 
-| Script                | Descrição                                        |
-| --------------------- | ------------------------------------------------ |
-| `npm run build`       | Compila o projeto para `dist/`                   |
-| `npm run start`       | Inicia a aplicação compilada                     |
-| `npm run start:dev`   | Inicia em modo desenvolvimento com hot-reload    |
-| `npm run start:debug` | Inicia em modo debug com hot-reload              |
-| `npm run start:prod`  | Inicia a partir do build de produção             |
-| `npm run lint`        | Executa o ESLint e corrige problemas automáticos |
-| `npm run format`      | Formata o código com Prettier                    |
-| `npm test`            | Executa os testes unitários                      |
-| `npm run test:cov`    | Executa testes com relatório de cobertura        |
-| `npm run test:watch`  | Executa testes em modo watch                     |
-| `npm run test:e2e`    | Executa testes end-to-end                        |
-| `npm run migration:run`      | Executa as migrations pendentes           |
-| `npm run migration:revert`   | Reverte a última migration executada      |
+| Script                       | Descrição                                                             |
+| ---------------------------- | --------------------------------------------------------------------- |
+| `npm run build`              | Compila o projeto para `dist/`                                        |
+| `npm run start`              | Inicia a aplicação compilada                                          |
+| `npm run start:dev`          | Inicia em modo desenvolvimento com hot-reload                         |
+| `npm run start:debug`        | Inicia em modo debug com hot-reload                                   |
+| `npm run start:prod`         | Inicia a partir do build de produção                                  |
+| `npm run lint`               | Executa o ESLint e corrige problemas automáticos                      |
+| `npm run format`             | Formata o código com Prettier                                         |
+| `npm test`                   | Executa os testes unitários                                           |
+| `npm run test:cov`           | Executa testes com relatório de cobertura                             |
+| `npm run test:watch`         | Executa testes em modo watch                                          |
+| `npm run test:e2e`           | Executa testes end-to-end                                             |
+| `npm run migration:run`      | Executa as migrations pendentes                                       |
+| `npm run migration:revert`   | Reverte a última migration executada                                  |
 | `npm run migration:generate` | Gera uma migration a partir das TypeORM entities (`-- --name=<name>`) |
-| `npm run docker:dev`  | Sobe o ambiente de desenvolvimento via Docker Compose |
+| `npm run docker:dev`         | Sobe o ambiente de desenvolvimento via Docker Compose                 |

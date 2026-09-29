@@ -6,7 +6,7 @@ MCP server local (stdio) para **backup**, **restore** e **exclusão de tabelas**
 |---|---|---|
 | `backup_database` | `output_dir` | Roda `pg_dump` (formato plain) dentro do container e salva `<db>_<AAAAMMDD-HHMMSS>.sql` no diretório informado |
 | `restore_database` | `backup_file`, `confirm` | Executa o `.sql` via `psql` em **transação única** (`ON_ERROR_STOP`). Se der erro, tudo é desfeito. Exige `confirm: true` |
-| `drop_all_tables` | `confirm_database`, `backup_dir?` | Faz backup automático e depois `DROP TABLE ... CASCADE` em todas as tabelas de usuário (todos os schemas), em **transação única**. Exige `confirm_database` igual ao nome do banco |
+| `drop_all_tables` | `confirm_database` | Faz backup automático em `scripts/` (raiz do projeto) e depois `DROP TABLE ... CASCADE` em todas as tabelas de usuário (todos os schemas), em **transação única**. Exige `confirm_database` igual ao nome do banco |
 
 ## Instalação e build
 
