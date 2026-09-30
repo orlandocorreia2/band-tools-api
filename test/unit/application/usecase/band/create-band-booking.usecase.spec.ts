@@ -80,11 +80,13 @@ describe('CreateBandBookingUseCase', () => {
   beforeEach(() => {
     bandBookingRepository = {
       save: jest.fn().mockResolvedValue(undefined),
+      findAllByBandId: jest.fn(),
     };
     contactRepository = {
       save: jest.fn(),
       findAllByUserId: jest.fn(),
       findByIdAndUserId: jest.fn().mockResolvedValue(makeContact()),
+      findAllByIds: jest.fn(),
     };
     useCase = new CreateBandBookingUseCase(
       bandBookingRepository,

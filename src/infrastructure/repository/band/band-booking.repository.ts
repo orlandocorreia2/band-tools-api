@@ -17,4 +17,13 @@ export class BandBookingRepository implements IBandBookingRepository {
 
     await this.repository.save(entity);
   }
+
+  async findAllByBandId(bandId: string): Promise<BandBookingEntity[]> {
+    const bandBookings = await this.repository.find({
+      where: { band_id: bandId },
+      order: { date: 'ASC', start_time: 'ASC', created_at: 'ASC' },
+    });
+
+    return bandBookings as unknown as BandBookingEntity[];
+  }
 }

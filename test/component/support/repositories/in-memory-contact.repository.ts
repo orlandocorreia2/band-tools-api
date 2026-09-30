@@ -24,4 +24,10 @@ export class InMemoryContactRepository implements IContactRepository {
       ),
     );
   }
+
+  findAllByIds(ids: string[]): Promise<ContactEntity[]> {
+    return Promise.resolve(
+      this.store.contacts.filter((contact) => ids.includes(contact.id)),
+    );
+  }
 }

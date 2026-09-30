@@ -2,6 +2,23 @@
 
 ### Controle de versionamento e atualizações da api:
 
+### [Version - 0.19.0] - 2026-09-29
+
+#### Feat
+
+- Listagem dos agendamentos de uma banda (`GET /bands/:id/bookings`), protegida por `JwtAuthGuard` + `AuthUserIsMemberBandGuard`: apenas membros da banda acessam; `:id` inválido retorna 422, banda ou usuário inexistente 404, não membro 403 (sem expor dados de agendamentos ou contatos)
+- Resposta no envelope `{ "data": [...] }` já adotado nas demais listagens; cada item traz `id`, `title`, `date` (`YYYY-MM-DD`, mesmo formato do cadastro), `start_time`, `duration`, `fee` (numérico), `status` persistido, `consumption`, `link`, `note`, `created_at`, `updated_at` e o objeto aninhado `contact` (`id`, `name`, `phone`, `alternate_phone`, `venue_name`, `address`, `email`, `role`, `notes`)
+- `band_id` e `contact_id` não são expostos no item por serem redundantes (`:id` da rota e `contact.id`); o `contact` não expõe `user_id`, `created_at` nem `updated_at`; campos opcionais não preenchidos são retornados como `null`, mantendo um contrato estável para os clientes
+- Todos os agendamentos da banda são retornados, de qualquer `status` e incluindo datas passadas, em ordem cronológica (`date` ASC, `start_time` ASC, `created_at` ASC como desempate), sem paginação
+- `IBandBookingRepository` ganha `findAllByBandId(bandId)` e `IContactRepository` ganha `findAllByIds(ids)` (`In(ids)`); `ListBandBookingsUseCase` busca os contatos em lote com IDs deduplicados (2 queries por requisição, sem N+1), usando apenas IDs dos agendamentos da banda já autorizada pelo guard, nunca IDs vindos do cliente (evita IDOR)
+- Novos `BandBookingResponseDto`, `BandBookingContactResponseDto` e `ListBandBookingsResponseDto`; `ContactResponseDto` e `GET /users/contacts` não foram alterados
+- Novo helper `formatDateOnly` (`src/shared/helpers/`), reutilizado pelo `dateColumnTransformer` de `BandBookingTypeormEntity`; nenhuma alteração de schema (sem migration)
+- Testes unitários com 100% de cobertura, testes de componente (200 com contato aninhado, lista vazia, 401, 422, 404 e 403) e testes e2e no banco efêmero cobrindo campos retornados, opcionais `null`, ordenação, isolamento entre bandas, contato cadastrado por outro membro, `status` diferente de `Pending`, 401, 403, 404 e 422
+
+#### Security
+
+- Os dados do contato (telefone, e-mail e endereço) passam a ser visíveis para todos os membros da banda, e não apenas para o usuário que cadastrou o contato; pendente de validação com PO/DPO quanto à necessidade de aviso ou consentimento (LGPD) antes do release em produção
+
 ### [Version - 0.18.0] - 2026-09-29
 
 #### Chore

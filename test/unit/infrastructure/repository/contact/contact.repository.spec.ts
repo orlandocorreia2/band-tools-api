@@ -8,12 +8,12 @@ jest.mock('@infrastructure/entities/contact/contact-typeorm.entity', () => ({
 
 import { ContactRepository } from '@infrastructure/repository/contact/contact.repository';
 import { ContactEntity } from '@domain/entities/contact/contact.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 describe('ContactRepository', () => {
   let contactRepository: ContactRepository;
   let typeormRepo: jest.Mocked<
-    Pick<Repository<any>, 'create' | 'save' | 'find' | 'findOneBy'>
+    Pick<Repository<any>, 'create' | 'save' | 'find' | 'findOneBy' | 'findBy'>
   >;
 
   beforeEach(() => {
@@ -22,6 +22,7 @@ describe('ContactRepository', () => {
       save: jest.fn().mockResolvedValue(undefined),
       find: jest.fn().mockResolvedValue([]),
       findOneBy: jest.fn().mockResolvedValue(null),
+      findBy: jest.fn().mockResolvedValue([]),
     };
     contactRepository = new ContactRepository(typeormRepo as any);
   });
@@ -114,6 +115,28 @@ describe('ContactRepository', () => {
       );
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('findAllByIds', () => {
+    it('should call repository.findBy filtering by the given ids', async () => {
+      await contactRepository.findAllByIds(['contact-1', 'contact-2']);
+
+      expect(typeormRepo.findBy).toHaveBeenCalledWith({
+        id: In(['contact-1', 'contact-2']),
+      });
+    });
+
+    it('should return the contacts returned by the repository', async () => {
+      const contacts = [{ id: 'contact-1' }, { id: 'contact-2' }];
+      typeormRepo.findBy.mockResolvedValueOnce(contacts as any);
+
+      const result = await contactRepository.findAllByIds([
+        'contact-1',
+        'contact-2',
+      ]);
+
+      expect(result).toBe(contacts);
     });
   });
 });

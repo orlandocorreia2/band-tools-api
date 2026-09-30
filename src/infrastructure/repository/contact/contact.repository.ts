@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ContactEntity } from '@domain/entities/contact/contact.entity';
 import { IContactRepository } from '@domain/repositories/contact/contact.repository.interface';
 import { ContactTypeormEntity } from '@infrastructure/entities/contact/contact-typeorm.entity';
@@ -34,5 +34,11 @@ export class ContactRepository implements IContactRepository {
     const contact = await this.repository.findOneBy({ id, user_id: userId });
 
     return contact;
+  }
+
+  async findAllByIds(ids: string[]): Promise<ContactEntity[]> {
+    const contacts = await this.repository.findBy({ id: In(ids) });
+
+    return contacts;
   }
 }

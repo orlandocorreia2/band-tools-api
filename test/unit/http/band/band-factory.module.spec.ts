@@ -61,6 +61,12 @@ jest.mock('@usecase/band/create-band-booking.usecase', () => ({
     .mockImplementation(() => ({ execute: jest.fn() })),
 }));
 
+jest.mock('@usecase/band/list-band-bookings.usecase', () => ({
+  ListBandBookingsUseCase: jest
+    .fn()
+    .mockImplementation(() => ({ execute: jest.fn() })),
+}));
+
 jest.mock('@infrastructure/persistence/persistence.module', () => ({
   PersistenceModule: class PersistenceModule {},
 }));
@@ -110,6 +116,7 @@ import { ListSetlistSongsUseCase } from '@usecase/band/list-setlist-songs.usecas
 import { CreateBandSongUseCase } from '@usecase/band/create-band-song.usecase';
 import { ListBandSongsUseCase } from '@usecase/band/list-band-songs.usecase';
 import { CreateBandBookingUseCase } from '@usecase/band/create-band-booking.usecase';
+import { ListBandBookingsUseCase } from '@usecase/band/list-band-bookings.usecase';
 import { PersistenceModule } from '@infrastructure/persistence/persistence.module';
 import { BandMemberRepository } from '@infrastructure/repository/band/band-member.repository';
 import { UserRepository } from '@infrastructure/repository/user/user.repository';
@@ -177,6 +184,12 @@ describe('BandFactoryModule', () => {
     );
   });
 
+  it('should expose LIST_BAND_BOOKINGS_USE_CASE token', () => {
+    expect(BandFactoryModule.LIST_BAND_BOOKINGS_USE_CASE).toBe(
+      'ListBandBookingsUseCase',
+    );
+  });
+
   it('should return a DynamicModule from forRoot()', () => {
     const module = BandFactoryModule.forRoot();
 
@@ -194,6 +207,7 @@ describe('BandFactoryModule', () => {
         BandFactoryModule.CREATE_BAND_SONG_USE_CASE,
         BandFactoryModule.LIST_BAND_SONGS_USE_CASE,
         BandFactoryModule.CREATE_BAND_BOOKING_USE_CASE,
+        BandFactoryModule.LIST_BAND_BOOKINGS_USE_CASE,
       ]),
     );
   });
@@ -352,6 +366,26 @@ describe('BandFactoryModule', () => {
     factoryProvider.useFactory(mockBandBookingRepo, mockContactRepo);
 
     expect(CreateBandBookingUseCase).toHaveBeenCalledWith(
+      mockBandBookingRepo,
+      mockContactRepo,
+    );
+  });
+
+  it('should wire ListBandBookingsUseCase with BandBookingRepository and ContactRepository via useFactory', () => {
+    const module = BandFactoryModule.forRoot();
+    const factoryProvider = (module.providers as any[]).find(
+      (p) => p.provide === BandFactoryModule.LIST_BAND_BOOKINGS_USE_CASE,
+    );
+    const mockBandBookingRepo = { findAllByBandId: jest.fn() };
+    const mockContactRepo = { findAllByIds: jest.fn() };
+
+    factoryProvider.useFactory(mockBandBookingRepo, mockContactRepo);
+
+    expect(factoryProvider.inject).toEqual([
+      BandBookingRepository,
+      ContactRepository,
+    ]);
+    expect(ListBandBookingsUseCase).toHaveBeenCalledWith(
       mockBandBookingRepo,
       mockContactRepo,
     );

@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BandBookingStatusEnum } from '@shared/commons/enums';
+import { formatDateOnly } from '@shared/helpers/format-date-only';
 
 export const feeColumnTransformer = {
   to: (value: number): number => value,
@@ -14,12 +15,7 @@ export const feeColumnTransformer = {
 };
 
 export const dateColumnTransformer = {
-  to: (value: Date): string => {
-    const year = value.getUTCFullYear();
-    const month = String(value.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(value.getUTCDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  },
+  to: (value: Date): string => formatDateOnly(value),
   from: (value: string): Date => new Date(`${value}T00:00:00.000Z`),
 };
 

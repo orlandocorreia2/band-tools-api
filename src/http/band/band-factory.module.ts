@@ -8,6 +8,7 @@ import { ListSetlistSongsUseCase } from '@usecase/band/list-setlist-songs.usecas
 import { CreateBandSongUseCase } from '@usecase/band/create-band-song.usecase';
 import { ListBandSongsUseCase } from '@usecase/band/list-band-songs.usecase';
 import { CreateBandBookingUseCase } from '@usecase/band/create-band-booking.usecase';
+import { ListBandBookingsUseCase } from '@usecase/band/list-band-bookings.usecase';
 import { BandRepository } from '@infrastructure/repository/band/band.repository';
 import { BandSetlistRepository } from '@infrastructure/repository/band/band-setlist.repository';
 import { BandSetlistSongRepository } from '@infrastructure/repository/band/band-setlist-song.repository';
@@ -28,6 +29,7 @@ export class BandFactoryModule {
   static readonly CREATE_BAND_SONG_USE_CASE = 'CreateBandSongUseCase';
   static readonly LIST_BAND_SONGS_USE_CASE = 'ListBandSongsUseCase';
   static readonly CREATE_BAND_BOOKING_USE_CASE = 'CreateBandBookingUseCase';
+  static readonly LIST_BAND_BOOKINGS_USE_CASE = 'ListBandBookingsUseCase';
 
   static forRoot(): DynamicModule {
     return {
@@ -120,6 +122,18 @@ export class BandFactoryModule {
               contactRepository,
             ),
         },
+        {
+          provide: BandFactoryModule.LIST_BAND_BOOKINGS_USE_CASE,
+          inject: [BandBookingRepository, ContactRepository],
+          useFactory: (
+            bandBookingRepository: BandBookingRepository,
+            contactRepository: ContactRepository,
+          ) =>
+            new ListBandBookingsUseCase(
+              bandBookingRepository,
+              contactRepository,
+            ),
+        },
       ],
       exports: [
         BandFactoryModule.CREATE_BAND_USE_CASE,
@@ -131,6 +145,7 @@ export class BandFactoryModule {
         BandFactoryModule.CREATE_BAND_SONG_USE_CASE,
         BandFactoryModule.LIST_BAND_SONGS_USE_CASE,
         BandFactoryModule.CREATE_BAND_BOOKING_USE_CASE,
+        BandFactoryModule.LIST_BAND_BOOKINGS_USE_CASE,
       ],
     };
   }
